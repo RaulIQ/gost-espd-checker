@@ -36,3 +36,15 @@ def test_reports_wrong_margin_of_first_section() -> None:
         contains_string("раздел 1: верхнее поле"),
         "wrong margin of the first section was not reported",
     )
+
+
+def test_reports_missing_page_number_of_second_section() -> None:
+    document = Document()
+    conforming(document.sections[0])
+    second = document.add_section()
+    second.header.is_linked_to_previous = False
+    assert_that(
+        "\n".join(str(item) for item in Layout(document).violations()),
+        contains_string("раздел 2: в верхнем колонтитуле нет номера страницы"),
+        "missing page number of the second section was not reported",
+    )

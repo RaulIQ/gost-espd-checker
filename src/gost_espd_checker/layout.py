@@ -7,6 +7,7 @@ from docx.document import Document
 from typing_extensions import override
 
 from gost_espd_checker.check import Check
+from gost_espd_checker.heading import Heading
 from gost_espd_checker.margins import Margins
 from gost_espd_checker.page_size import PageSize
 from gost_espd_checker.violation import Violation
@@ -15,7 +16,7 @@ from gost_espd_checker.violation import Violation
 @final
 @dataclass(frozen=True, slots=True)
 class Layout(Check):
-    """The sheet and the margins of every section of a document."""
+    """The sheet, the margins and the header of every section."""
 
     document: Document
 
@@ -25,6 +26,10 @@ class Layout(Check):
         return tuple(
             violation
             for number, section in enumerate(self.document.sections, start=1)
-            for check in (PageSize(section, number), Margins(section, number))
+            for check in (
+                PageSize(section, number),
+                Margins(section, number),
+                Heading(section, number),
+            )
             for violation in check.violations()
         )
