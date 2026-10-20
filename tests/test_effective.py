@@ -5,7 +5,7 @@ from docx.oxml.ns import nsdecls
 from docx.shared import Mm
 from hamcrest import assert_that, equal_to, is_
 
-from gost_espd_checker.effective import Effective
+from gost_espd_checker.effective import Effective, Lettering
 
 
 def test_reads_alignment_of_paragraph() -> None:
@@ -66,7 +66,7 @@ def test_sees_capitals_set_by_style() -> None:
     document = Document()
     document.styles["Heading 1"].font.all_caps = True
     assert_that(
-        Effective(
+        Lettering(
             document.add_paragraph("Настройка программы", style="Heading 1")
         ).capitals(),
         is_(True),
@@ -79,7 +79,7 @@ def test_denies_capitals_when_one_run_is_plain() -> None:
     paragraph.add_run("ПРОВЕРКА ").font.all_caps = True
     paragraph.add_run("программы")
     assert_that(
-        Effective(paragraph).capitals(),
+        Lettering(paragraph).capitals(),
         is_(False),
         "capitals were not denied for a paragraph with a plain run",
     )
@@ -120,4 +120,65 @@ def test_lets_paragraph_turn_hyphenation_back_on() -> None:
         Effective(paragraph).hyphenation(),
         is_(True),
         "paragraph did not turn hyphenation back on",
+    )
+
+
+def test_sees_bold_set_by_style() -> None:
+    document = Document()
+    document.styles["Heading 2"].font.bold = True
+    assert_that(
+        Lettering(
+            document.add_paragraph("Состав программы", style="Heading 2")
+        ).bold(),
+        is_(True),
+        "bold set by the style was not seen",
+    )
+
+
+def test_denies_bold_when_only_some_words_are_bold() -> None:
+    paragraph = Document().add_paragraph()
+    paragraph.add_run("7. Перейти на вкладку ")
+    paragraph.add_run("«Firmware»").bold = True
+    assert_that(
+        Lettering(paragraph).bold(),
+        is_(False),
+        "bold was not denied for a paragraph with some plain words",
+    )
+
+
+def test_denies_bold_to_paragraph_without_text() -> None:
+    assert_that(
+        Lettering(Document().add_paragraph("  ")).bold(),
+        is_(False),
+        "bold was not denied to a paragraph without text",
+    )
+
+
+def test_takes_outline_level_from_style() -> None:
+    assert_that(
+        Effective(
+            Document().add_paragraph("Связи программ", style="Heading 2")
+        ).outline(),
+        equal_to(1),
+        "outline level was not taken from the style",
+    )
+
+
+def test_takes_outline_level_from_paragraph() -> None:
+    paragraph = Document().add_paragraph("ОБЩИЕ СВЕДЕНИЯ")
+    paragraph.paragraph_format.element.get_or_add_pPr().append(
+        parse_xml(f'<w:outlineLvl {nsdecls("w")} w:val="0"/>')
+    )
+    assert_that(
+        Effective(paragraph).outline(),
+        equal_to(0),
+        "outline level was not taken from the paragraph",
+    )
+
+
+def test_gives_body_text_level_without_outline() -> None:
+    assert_that(
+        Effective(Document().add_paragraph("Текст программы")).outline(),
+        equal_to(9),
+        "paragraph without an outline level was not treated as body text",
     )

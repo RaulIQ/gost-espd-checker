@@ -6,16 +6,17 @@ from docx.shared import Mm
 from hamcrest import assert_that, contains_string, empty
 
 from gost_espd_checker.titles import Titles
+from tests.bold import bold
 from tests.rulebook import rulebook
 
 
 def test_accepts_document_with_proper_titles() -> None:
     document = Document()
-    document.add_paragraph(
-        "1. ОБЩИЕ СВЕДЕНИЯ"
+    bold(
+        document, "1. ОБЩИЕ СВЕДЕНИЯ"
     ).alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    document.add_paragraph(
-        "1.1. Назначение программы"
+    bold(
+        document, "1.1. Назначение программы"
     ).paragraph_format.first_line_indent = Mm(12.5)
     document.add_paragraph("Программа прошивает контроллер.")
     assert_that(
@@ -25,9 +26,9 @@ def test_accepts_document_with_proper_titles() -> None:
     )
 
 
-def test_finds_section_title_by_number() -> None:
+def test_finds_bold_section_title_by_number() -> None:
     document = Document()
-    document.add_paragraph("2. Структура программы")
+    bold(document, "2. Структура программы")
     assert_that(
         "\n".join(
             str(item) for item in Titles(document, rulebook()).violations()
@@ -35,7 +36,29 @@ def test_finds_section_title_by_number() -> None:
         contains_string(
             "заголовок «2. Структура программы»: ошибка ESPD-106-08"
         ),
-        "section title was not found by its number",
+        "bold section title was not found by its number",
+    )
+
+
+def test_finds_bold_subsection_title_by_number() -> None:
+    document = Document()
+    bold(document, "2.3. Связи между устройствами")
+    assert_that(
+        "\n".join(
+            str(item) for item in Titles(document, rulebook()).violations()
+        ),
+        contains_string("ESPD-106-10: заголовок подраздела записан без"),
+        "bold subsection title was not found by its number",
+    )
+
+
+def test_skips_numbered_paragraph_that_is_not_bold() -> None:
+    document = Document()
+    document.add_paragraph("1. Подключить контроллер к ПК кабелем USB;")
+    assert_that(
+        Titles(document, rulebook()).violations(),
+        empty(),
+        "numbered paragraph that is not bold was not skipped",
     )
 
 
@@ -51,19 +74,20 @@ def test_finds_section_title_by_style() -> None:
     )
 
 
-def test_finds_subsection_title_by_number() -> None:
+def test_ignores_numbers_in_document_with_styled_titles() -> None:
     document = Document()
-    document.add_paragraph("2.3. Связи между устройствами")
+    document.add_paragraph(
+        "3. НАСТРОЙКА ПРОГРАММЫ", style="Heading 1"
+    ).alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    bold(document, "1. Подключить контроллер к ПК кабелем USB;")
     assert_that(
-        "\n".join(
-            str(item) for item in Titles(document, rulebook()).violations()
-        ),
-        contains_string("ESPD-106-10: заголовок подраздела записан без"),
-        "subsection title was not found by its number",
+        Titles(document, rulebook()).violations(),
+        empty(),
+        "numbered paragraph was not ignored in a document with styled titles",
     )
 
 
-def test_prefers_style_to_number() -> None:
+def test_takes_level_from_style_rather_than_number() -> None:
     document = Document()
     document.add_paragraph("6. Сообщения журнала", style="Heading 2")
     assert_that(
@@ -71,13 +95,13 @@ def test_prefers_style_to_number() -> None:
             str(item) for item in Titles(document, rulebook()).violations()
         ),
         contains_string("ESPD-106-10: заголовок подраздела записан без"),
-        "style of the title was not preferred to its number",
+        "level was not taken from the style rather than the number",
     )
 
 
 def test_skips_lines_of_contents() -> None:
     document = Document()
-    document.add_paragraph("1.1. Назначение программы\t4")
+    bold(document, "1.1. Назначение программы\t4")
     assert_that(
         Titles(document, rulebook()).violations(),
         empty(),
@@ -95,13 +119,13 @@ def test_skips_deeper_headings() -> None:
     )
 
 
-def test_skips_plain_paragraphs() -> None:
+def test_skips_heading_without_letters_or_digits() -> None:
     document = Document()
-    document.add_paragraph("Программа записывает образ во флеш-память.")
+    document.add_paragraph(".", style="Heading 1")
     assert_that(
         Titles(document, rulebook()).violations(),
         empty(),
-        "plain paragraph was not skipped",
+        "heading without letters or digits was not skipped",
     )
 
 
@@ -110,9 +134,7 @@ def test_reads_automatic_hyphenation_of_document() -> None:
     document.settings.element.append(
         parse_xml(f"<w:autoHyphenation {nsdecls('w')}/>")
     )
-    document.add_paragraph(
-        "3. НАСТРОЙКА"
-    ).alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    bold(document, "3. НАСТРОЙКА").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     assert_that(
         "\n".join(
             str(item) for item in Titles(document, rulebook()).violations()

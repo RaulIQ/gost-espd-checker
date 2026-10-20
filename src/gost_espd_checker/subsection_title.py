@@ -7,7 +7,7 @@ from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.check import Check
-from gost_espd_checker.effective import Effective
+from gost_espd_checker.effective import Effective, Lettering
 from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
@@ -41,7 +41,7 @@ class SubsectionTitle(Check):
                     not letters
                     or letters[0].islower()
                     or not any(letter.islower() for letter in letters)
-                    or formatting.capitals(),
+                    or Lettering(self.paragraph).capitals(),
                 ),
             )
             if broken

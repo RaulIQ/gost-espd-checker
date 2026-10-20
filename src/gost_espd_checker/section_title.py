@@ -8,7 +8,7 @@ from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.check import Check
-from gost_espd_checker.effective import Effective
+from gost_espd_checker.effective import Effective, Lettering
 from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
@@ -33,7 +33,7 @@ class SectionTitle(Check):
                     "ESPD-106-08",
                     "заголовок раздела написан не прописными буквами",
                     any(letter.islower() for letter in self.paragraph.text)
-                    and not formatting.capitals(),
+                    and not Lettering(self.paragraph).capitals(),
                 ),
                 (
                     "ESPD-106-09",
