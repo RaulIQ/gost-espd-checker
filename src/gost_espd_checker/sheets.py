@@ -12,10 +12,11 @@ from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.breaks import Breaks
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
 from gost_espd_checker.headings import Headings
-from gost_espd_checker.rules import Catalog
+from gost_espd_checker.lineage import Lineage
 from gost_espd_checker.violation import Violation
 
 
@@ -68,6 +69,6 @@ class Sheets(Check):
             )
             if paragraph.paragraph_format.element in titles
             and not fresh
-            and not Effective(paragraph).pagebreak()
+            and not Effective(Lineage(paragraph)).pagebreak()
             and not Breaks(paragraph).opens()
         )

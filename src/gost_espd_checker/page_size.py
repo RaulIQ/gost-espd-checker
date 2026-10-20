@@ -7,9 +7,9 @@ from docx.section import Section
 from docx.shared import Mm
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.millimeters import Millimeters
-from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 

@@ -7,9 +7,11 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
-from gost_espd_checker.effective import Effective, Lettering
-from gost_espd_checker.rules import Catalog
+from gost_espd_checker.effective import Effective
+from gost_espd_checker.lettering import Lettering
+from gost_espd_checker.lineage import Lineage
 from gost_espd_checker.violation import Violation
 
 
@@ -25,7 +27,7 @@ class SectionTitle(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report lowercase letters and an alignment other than centered."""
-        formatting = Effective(self.paragraph)
+        formatting = Effective(Lineage(self.paragraph))
         return tuple(
             Violation(self.place, self.rules.rule(key), message)
             for key, message, broken in (
@@ -33,7 +35,7 @@ class SectionTitle(Check):
                     "ESPD-106-08",
                     "заголовок раздела написан не прописными буквами",
                     any(letter.islower() for letter in self.paragraph.text)
-                    and not Lettering(self.paragraph).capitals(),
+                    and not Lettering(Lineage(self.paragraph)).capitals(),
                 ),
                 (
                     "ESPD-106-09",

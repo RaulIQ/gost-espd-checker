@@ -8,10 +8,12 @@ from docx.document import Document
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
-from gost_espd_checker.effective import Effective, Placement
+from gost_espd_checker.effective import Effective
 from gost_espd_checker.headings import Headings
-from gost_espd_checker.rules import Catalog
+from gost_espd_checker.lineage import Lineage
+from gost_espd_checker.placement import Placement
 from gost_espd_checker.violation import Violation
 
 
@@ -24,7 +26,7 @@ def _kind(paragraph: Paragraph) -> str:
         if re.match(r"\d+(?:\.\d+)+\.\s+\S", text)
         else "перечисление"
         if re.match(r"(?:\d+[.)]|[-\u2013\u2014\u2022])\s+\S", text)
-        or Placement(paragraph).listed()
+        or Placement(Lineage(paragraph)).listed()
         else ""
     )
 
@@ -49,5 +51,5 @@ class Indents(Check):
             for paragraph, level in Headings(self.document).levels()
             if not level
             and _kind(paragraph)
-            and Effective(paragraph).indent() <= 0
+            and Effective(Lineage(paragraph)).indent() <= 0
         )

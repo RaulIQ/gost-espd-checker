@@ -6,11 +6,11 @@ from typing import final
 from docx.document import Document
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.heading import Heading
 from gost_espd_checker.margins import Margins
 from gost_espd_checker.page_size import PageSize
-from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 

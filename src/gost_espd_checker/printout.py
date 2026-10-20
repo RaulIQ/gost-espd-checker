@@ -1,7 +1,7 @@
 """A document as it falls into printed pages."""
 
 from dataclasses import dataclass
-from typing import Protocol, final
+from typing import final
 
 from docx.document import Document
 from docx.text.paragraph import Paragraph
@@ -9,14 +9,8 @@ from typing_extensions import override
 
 from gost_espd_checker.breaks import Breaks
 from gost_espd_checker.effective import Effective
-
-
-class Leaves(Protocol):
-    """The pages of a document, each with its paragraphs in order."""
-
-    def pages(self) -> tuple[tuple[Paragraph, ...], ...]:
-        """Split the paragraphs into pages that carry some text."""
-        ...
+from gost_espd_checker.leaves import Leaves
+from gost_espd_checker.lineage import Lineage
 
 
 @final
@@ -35,7 +29,8 @@ class Printout(Leaves):
         ):
             paragraph = Paragraph(element, self.document)
             if pages[-1] and (
-                Effective(paragraph).pagebreak() or Breaks(paragraph).opens()
+                Effective(Lineage(paragraph)).pagebreak()
+                or Breaks(paragraph).opens()
             ):
                 pages.append([])
             pages[-1].append(paragraph)

@@ -5,7 +5,7 @@ from typing import final
 
 from typing_extensions import override
 
-from gost_espd_checker.rules import Rule
+from gost_espd_checker.rule import Rule
 
 
 @final

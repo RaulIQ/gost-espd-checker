@@ -8,9 +8,9 @@ from docx.document import Document
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.printout import Printout
-from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 

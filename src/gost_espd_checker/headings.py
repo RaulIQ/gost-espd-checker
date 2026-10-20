@@ -2,26 +2,21 @@
 
 import re
 from dataclasses import dataclass
-from typing import Protocol, final
+from typing import final
 
 from docx.document import Document
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
-from gost_espd_checker.effective import Lettering, Placement
-
-
-class Outline(Protocol):
-    """Paragraphs of a document, each with the level of its title."""
-
-    def levels(self) -> tuple[tuple[Paragraph, int], ...]:
-        """Pair every paragraph with 1 for a section, 2 for a subsection."""
-        ...
+from gost_espd_checker.lettering import Lettering
+from gost_espd_checker.lineage import Lineage
+from gost_espd_checker.outline import Outline
+from gost_espd_checker.placement import Placement
 
 
 def _level(paragraph: Paragraph, *, styled: bool) -> int:
     text = paragraph.text.strip()
-    outline = Placement(paragraph).outline()
+    outline = Placement(Lineage(paragraph)).outline()
     numbered = (
         1
         if re.match(r"\d+\.\s+\S", text)
@@ -37,7 +32,7 @@ def _level(paragraph: Paragraph, *, styled: bool) -> int:
         else 0
         if styled
         else numbered
-        if Lettering(paragraph).bold()
+        if Lettering(Lineage(paragraph)).bold()
         else 0
     )
 
@@ -53,7 +48,7 @@ class Headings(Outline):
     def levels(self) -> tuple[tuple[Paragraph, int], ...]:
         """Level every paragraph of the body, leaving out lines of contents."""
         styled = any(
-            Placement(paragraph).outline() in range(9)
+            Placement(Lineage(paragraph)).outline() in range(9)
             for paragraph in self.document.paragraphs
         )
         return tuple(

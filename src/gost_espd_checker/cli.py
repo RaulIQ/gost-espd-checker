@@ -4,29 +4,23 @@ import argparse
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol, TextIO, final
+from typing import TextIO, final
 
 import docx
 from typing_extensions import override
 
 import gost_espd_checker
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.contents import Contents
 from gost_espd_checker.endorsement import Endorsement
 from gost_espd_checker.indents import Indents
 from gost_espd_checker.layout import Layout
 from gost_espd_checker.numbering import Numbering
 from gost_espd_checker.pagination import Pagination
-from gost_espd_checker.rules import Catalog, Rules
+from gost_espd_checker.program import Program
+from gost_espd_checker.rules import Rules
 from gost_espd_checker.sheets import Sheets
 from gost_espd_checker.titles import Titles
-
-
-class Program(Protocol):
-    """Something run from the command line that ends with an exit code."""
-
-    def run(self) -> int:
-        """Do the work and return the exit code."""
-        ...
 
 
 @final

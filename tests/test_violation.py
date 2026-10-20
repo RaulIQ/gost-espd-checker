@@ -2,7 +2,7 @@ import secrets
 
 from hamcrest import assert_that, equal_to
 
-from gost_espd_checker.rules import Row
+from gost_espd_checker.row import Row
 from gost_espd_checker.violation import Violation
 
 
