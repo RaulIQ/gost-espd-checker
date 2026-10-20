@@ -9,37 +9,21 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
-from gost_espd_checker.breaks import Breaks
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
+from gost_espd_checker.printout import Printout
 from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
-
-
-def _pages(document: Document) -> list[list[Paragraph]]:
-    pages: list[list[Paragraph]] = [[]]
-    for element in document.element.body.xpath(
-        "./w:p | ./w:tbl[not(w:tblPr/w:tblpPr)]//w:p | ./w:sdt//w:p"
-    ):
-        paragraph = Paragraph(element, document)
-        if pages[-1] and (
-            Effective(paragraph).pagebreak() or Breaks(paragraph).opens()
-        ):
-            pages.append([])
-        pages[-1].append(paragraph)
-        if Breaks(paragraph).closes() or element.xpath("./w:pPr/w:sectPr"):
-            pages.append([])
-    return [page for page in pages if any(line.text.strip() for line in page)]
 
 
 def _title(document: Document) -> list[Paragraph]:
     page = next(
         (
             page
-            for page in _pages(document)
+            for page in Printout(document).pages()
             if not any("лист утверждения" in line.text.lower() for line in page)
         ),
-        [],
+        (),
     )
     return [line for line in page if line.text.strip()]
 
