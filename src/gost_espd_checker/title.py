@@ -6,9 +6,10 @@ from typing import final
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
-from gost_espd_checker.rules import Catalog
+from gost_espd_checker.lineage import Lineage
 from gost_espd_checker.violation import Violation
 
 
@@ -38,7 +39,7 @@ class Title(Check):
                     "ESPD-106-11",
                     "в заголовке разрешены автоматические переносы",
                     self.hyphenation
-                    and Effective(self.paragraph).hyphenation(),
+                    and Effective(Lineage(self.paragraph)).hyphenation(),
                 ),
                 (
                     "ESPD-106-12",

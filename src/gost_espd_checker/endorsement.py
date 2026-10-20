@@ -9,10 +9,11 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
+from gost_espd_checker.lineage import Lineage
 from gost_espd_checker.printout import Printout
-from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 
@@ -63,7 +64,7 @@ class Endorsement(Check):
                 (
                     "надпись «Утвержден» стоит не в левом верхнем углу",
                     index > 0
-                    or Effective(lines[index]).alignment()
+                    or Effective(Lineage(lines[index])).alignment()
                     not in {
                         WD_PARAGRAPH_ALIGNMENT.LEFT,
                         WD_PARAGRAPH_ALIGNMENT.JUSTIFY,

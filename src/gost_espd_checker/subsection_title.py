@@ -6,9 +6,11 @@ from typing import final
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
-from gost_espd_checker.effective import Effective, Lettering
-from gost_espd_checker.rules import Catalog
+from gost_espd_checker.effective import Effective
+from gost_espd_checker.lettering import Lettering
+from gost_espd_checker.lineage import Lineage
 from gost_espd_checker.violation import Violation
 
 
@@ -24,7 +26,7 @@ class SubsectionTitle(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report a missing indent and letters other than a first capital."""
-        formatting = Effective(self.paragraph)
+        formatting = Effective(Lineage(self.paragraph))
         letters = [char for char in self.paragraph.text if char.isalpha()]
         return tuple(
             Violation(self.place, self.rules.rule("ESPD-106-10"), message)
@@ -41,7 +43,7 @@ class SubsectionTitle(Check):
                     not letters
                     or letters[0].islower()
                     or not any(letter.islower() for letter in letters)
-                    or Lettering(self.paragraph).capitals(),
+                    or Lettering(Lineage(self.paragraph)).capitals(),
                 ),
             )
             if broken

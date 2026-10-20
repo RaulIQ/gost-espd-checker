@@ -2,40 +2,14 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol, final
+from typing import final
 
 import yaml
 from typing_extensions import override
 
-
-class Rule(Protocol):
-    """One requirement of a standard, with its clause and severity."""
-
-    def line(self, place: str, message: str) -> str:
-        """Render one violation of the rule."""
-        ...
-
-
-class Catalog(Protocol):
-    """The rules known to the checks, found by their ids."""
-
-    def rule(self, key: str) -> Rule:
-        """Find the rule by its id."""
-        ...
-
-
-@final
-@dataclass(frozen=True, slots=True)
-class Row(Rule):
-    """One row of the table of rules."""
-
-    fields: dict[str, object]
-
-    @override
-    def line(self, place: str, message: str) -> str:
-        """Render as ``place: severity id: message (clause)``."""
-        head = f"{self.fields['severity']} {self.fields['id']}"
-        return f"{place}: {head}: {message} ({self.fields['clause']})"
+from gost_espd_checker.catalog import Catalog
+from gost_espd_checker.row import Row
+from gost_espd_checker.rule import Rule
 
 
 @final

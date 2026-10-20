@@ -7,9 +7,9 @@ from docx.document import Document
 from docx.oxml.ns import qn
 from typing_extensions import override
 
+from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.headings import Headings
-from gost_espd_checker.rules import Catalog
 from gost_espd_checker.section_title import SectionTitle
 from gost_espd_checker.subsection_title import SubsectionTitle
 from gost_espd_checker.title import Title
