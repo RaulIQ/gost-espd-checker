@@ -1,3 +1,5 @@
+from docx.document import Document
+from docx.enum.text import WD_BREAK
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.section import Section
@@ -24,3 +26,11 @@ def headed(section: Section, content: str) -> Section:
         parse_xml(f"<w:p {nsdecls('w')}>{content}</w:p>")
     )
     return section
+
+
+def endorsed(document: Document) -> Document:
+    document.add_paragraph("Утвержден")
+    document.add_paragraph("RU.17701729.00001-01 32 01-ЛУ").add_run().add_break(
+        WD_BREAK.PAGE
+    )
+    return document
