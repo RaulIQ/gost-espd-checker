@@ -7,6 +7,7 @@ from docx.section import Section
 from typing_extensions import override
 
 from gost_espd_checker.check import Check
+from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 
@@ -17,6 +18,7 @@ class Heading(Check):
 
     section: Section
     number: int
+    rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -38,12 +40,13 @@ class Heading(Check):
         return tuple(
             Violation(
                 f"раздел {self.number}",
-                "ГОСТ 19.106-78, п. 2.1.2",
+                self.rules.rule(key),
                 f"в верхнем колонтитуле нет {missing}",
             )
-            for missing, absent in (
-                ("номера страницы", page == len(paragraphs)),
+            for key, missing, absent in (
+                ("ESPD-106-03", "номера страницы", page == len(paragraphs)),
                 (
+                    "ESPD-106-04",
                     "обозначения документа под номером страницы",
                     not any(
                         "".join(paragraph.xpath(".//w:t/text()")).strip()

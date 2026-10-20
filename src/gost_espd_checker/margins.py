@@ -9,6 +9,7 @@ from typing_extensions import override
 
 from gost_espd_checker.check import Check
 from gost_espd_checker.millimeters import Millimeters
+from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 
@@ -19,6 +20,7 @@ class Margins(Check):
 
     section: Section
     number: int
+    rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -26,7 +28,7 @@ class Margins(Check):
         return tuple(
             Violation(
                 f"раздел {self.number}",
-                "ГОСТ 19.106-78, п. 2.1.2",
+                self.rules.rule("ESPD-106-02"),
                 f"{side} поле {Millimeters(margin)} вместо {norm} мм",
             )
             for side, margin, norm in (
