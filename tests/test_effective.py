@@ -182,3 +182,27 @@ def test_gives_body_text_level_without_outline() -> None:
         equal_to(9),
         "paragraph without an outline level was not treated as body text",
     )
+
+
+def test_takes_page_break_before_from_style() -> None:
+    document = Document()
+    document.styles["Heading 1"].paragraph_format.page_break_before = True
+    assert_that(
+        Effective(
+            document.add_paragraph("ОБЩИЕ СВЕДЕНИЯ", style="Heading 1")
+        ).pagebreak(),
+        is_(True),
+        "page break before was not taken from the style",
+    )
+
+
+def test_lets_paragraph_cancel_page_break_of_style() -> None:
+    document = Document()
+    document.styles["Heading 1"].paragraph_format.page_break_before = True
+    paragraph = document.add_paragraph("ОБЩИЕ СВЕДЕНИЯ", style="Heading 1")
+    paragraph.paragraph_format.page_break_before = False
+    assert_that(
+        Effective(paragraph).pagebreak(),
+        is_(False),
+        "paragraph did not cancel the page break of its style",
+    )

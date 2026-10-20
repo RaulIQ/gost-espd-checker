@@ -33,6 +33,10 @@ class Formatting(Protocol):
         """Tell the outline level: 0 for a section, 9 for body text."""
         ...
 
+    def pagebreak(self) -> bool:
+        """Whether Word starts the paragraph on a new page."""
+        ...
+
 
 class Typeface(Protocol):
     """How the letters of a paragraph look."""
@@ -143,6 +147,24 @@ class Effective(Formatting):
             for level in owner.xpath("./w:pPr/w:outlineLvl/@w:val")
         ]
         return int(found[0]) if found else 9
+
+    @override
+    def pagebreak(self) -> bool:
+        """Take the first page break before set; none without one."""
+        return next(
+            (
+                found
+                for found in (
+                    self.paragraph.paragraph_format.page_break_before,
+                    *(
+                        style.paragraph_format.page_break_before
+                        for style in _chain(self.paragraph.style)
+                    ),
+                )
+                if found is not None
+            ),
+            False,
+        )
 
 
 @final
