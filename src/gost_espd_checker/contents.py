@@ -5,37 +5,13 @@ from dataclasses import dataclass
 from typing import final
 
 from docx.document import Document
-from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
-from gost_espd_checker.printout import Printout
+from gost_espd_checker.lines import Lines
+from gost_espd_checker.unnumbered import Unnumbered
 from gost_espd_checker.violation import Violation
-
-
-def _lines(document: Document) -> tuple[tuple[int, Paragraph], ...]:
-    return tuple(
-        (number, line)
-        for number, page in enumerate(Printout(document).pages())
-        for line in page
-        if line.text.strip()
-    )
-
-
-def _bare(text: str) -> str:
-    return re.sub(r"^\d+(?:\.\d+)*\.?\s+", "", text.strip())
-
-
-def _find(lines: tuple[tuple[int, Paragraph], ...], word: str) -> int:
-    return next(
-        (
-            position
-            for position, (_, line) in enumerate(lines)
-            if re.fullmatch(word, _bare(line.text), re.IGNORECASE)
-        ),
-        -1,
-    )
 
 
 @final
@@ -49,14 +25,22 @@ class Contents(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report the title, the page and the entries of the contents."""
-        lines = _lines(self.document)
-        heading = _find(lines, r"содержание|оглавление")
+        lines = tuple(Lines(self.document))
+        names = [str(Unnumbered(line.text)) for _, line in lines]
+        heading = next(
+            (
+                position
+                for position, name in enumerate(names)
+                if re.fullmatch(r"содержание|оглавление", name, re.IGNORECASE)
+            ),
+            -1,
+        )
         if heading < 0:
             return ()
         page, title = lines[heading]
-        word = _bare(title.text)
+        word = names[heading]
         return tuple(
-            self._violation(text)
+            Violation("содержание", self.rules.rule("ESPD-106-16"), text)
             for text, broken in (
                 (
                     f"заголовок «{word}» вместо «СОДЕРЖАНИЕ»",
@@ -72,7 +56,15 @@ class Contents(Check):
                 ),
                 (
                     "содержание стоит перед аннотацией",
-                    _find(lines, r"аннотация") > heading,
+                    next(
+                        (
+                            position
+                            for position, name in enumerate(names)
+                            if re.fullmatch(r"аннотация", name, re.IGNORECASE)
+                        ),
+                        -1,
+                    )
+                    > heading,
                 ),
                 *(
                     (
@@ -80,7 +72,7 @@ class Contents(Check):
                         bool(
                             re.fullmatch(
                                 r"аннотация|содержание",
-                                _bare(name),
+                                str(Unnumbered(name)),
                                 re.IGNORECASE,
                             )
                         ),
@@ -92,6 +84,3 @@ class Contents(Check):
             )
             if broken
         )
-
-    def _violation(self, text: str) -> Violation:
-        return Violation("содержание", self.rules.rule("ESPD-106-16"), text)

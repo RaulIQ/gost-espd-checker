@@ -7,6 +7,7 @@ from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.flow import Flow
+from gost_espd_checker.marks import Marks
 
 
 @final
@@ -19,18 +20,9 @@ class Breaks(Flow):
     @override
     def opens(self) -> bool:
         """Check that the first mark is a page break."""
-        return self._marks()[:1] == [True]
+        return [*Marks(self.paragraph)][:1] == [True]
 
     @override
     def closes(self) -> bool:
         """Check that the last mark is a page break."""
-        return self._marks()[-1:] == [True]
-
-    def _marks(self) -> list[bool]:
-        return [
-            mark.tag.endswith("}br")
-            for mark in self.paragraph.paragraph_format.element.xpath(
-                './/w:t | .//w:br[@w:type="page"]'
-            )
-            if mark.tag.endswith("}br") or (mark.text or "").strip()
-        ]
+        return [*Marks(self.paragraph)][-1:] == [True]
