@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gost-espd-checker"
+version = "0.1.0"
+description = "Checks program documents against the GOST ESPD standards"
+readme = "readme.md"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@d8198caf00f47f30c70fe2a746b10e70bbe63704",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gost_espd_checker"]
+
+[tool.eo]
+paths = ["src", "tests"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
