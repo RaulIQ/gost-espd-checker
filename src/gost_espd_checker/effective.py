@@ -95,19 +95,15 @@ class Effective(Formatting):
     @override
     def alignment(self) -> WD_PARAGRAPH_ALIGNMENT:
         """Take the first alignment set; Word aligns left without one."""
-        return next(
-            (
-                found
-                for found in (
-                    self.paragraph.paragraph_format.alignment,
-                    *(
-                        style.paragraph_format.alignment
-                        for style in _chain(self.paragraph.style)
-                    ),
-                )
-                if found is not None
-            ),
-            WD_PARAGRAPH_ALIGNMENT.LEFT,
+        found = [
+            value
+            for owner in _owners(self.paragraph)
+            for value in owner.xpath("./w:pPr/w:jc/@w:val")
+        ]
+        return WD_PARAGRAPH_ALIGNMENT.from_xml(
+            {"start": "left", "end": "right"}.get(found[0], found[0])
+            if found
+            else "left"
         )
 
     @override

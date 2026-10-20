@@ -206,3 +206,29 @@ def test_lets_paragraph_cancel_page_break_of_style() -> None:
         is_(False),
         "paragraph did not cancel the page break of its style",
     )
+
+
+def test_reads_end_alignment_as_right() -> None:
+    paragraph = Document().add_paragraph("Литера опытного образца")
+    paragraph.paragraph_format.element.get_or_add_pPr().append(
+        parse_xml(f'<w:jc {nsdecls("w")} w:val="end"/>')
+    )
+    assert_that(
+        Effective(paragraph).alignment(),
+        equal_to(WD_PARAGRAPH_ALIGNMENT.RIGHT),
+        "end alignment was not read as right",
+    )
+
+
+def test_reads_start_alignment_of_style_as_left() -> None:
+    document = Document()
+    document.styles["Heading 1"].element.get_or_add_pPr().append(
+        parse_xml(f'<w:jc {nsdecls("w")} w:val="start"/>')
+    )
+    assert_that(
+        Effective(
+            document.add_paragraph("ОБЩИЕ СВЕДЕНИЯ", style="Heading 1")
+        ).alignment(),
+        equal_to(WD_PARAGRAPH_ALIGNMENT.LEFT),
+        "start alignment of the style was not read as left",
+    )
