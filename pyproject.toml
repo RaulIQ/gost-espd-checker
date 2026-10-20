@@ -10,6 +10,7 @@ readme = "readme.md"
 requires-python = ">=3.11"
 dependencies = [
     "python-docx==1.2.0",
+    "PyYAML==6.0.3",
     "typing_extensions>=4.4",
 ]
 
@@ -18,8 +19,9 @@ gost-espd-checker = "gost_espd_checker.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@d8198caf00f47f30c70fe2a746b10e70bbe63704",
+    "pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@87d1ad21c9c832f6f869b62e50eb66e8f985f166",
     "PyHamcrest==2.1.0",
+    "types-PyYAML==6.0.12.20260906",
 ]
 
 [tool.hatch.metadata]

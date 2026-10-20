@@ -9,7 +9,9 @@ from typing import Protocol, TextIO, final
 import docx
 from typing_extensions import override
 
+import gost_espd_checker
 from gost_espd_checker.layout import Layout
+from gost_espd_checker.rules import Catalog, Rules
 
 
 class Program(Protocol):
@@ -26,12 +28,13 @@ class Cli(Program):
     """Checks one ``.docx`` file and prints a violation per line."""
 
     path: Path
+    rules: Catalog
     out: TextIO
 
     @override
     def run(self) -> int:
         """Print the violations; exit with one when there are any."""
-        found = Layout(docx.Document(str(self.path))).violations()
+        found = Layout(docx.Document(str(self.path)), self.rules).violations()
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
 
@@ -43,4 +46,10 @@ def main() -> None:
         description="Проверяет документ .docx на соответствие ГОСТ ЕСПД",
     )
     parser.add_argument("document", type=Path, help="файл .docx")
-    sys.exit(Cli(parser.parse_args().document, sys.stdout).run())
+    sys.exit(
+        Cli(
+            parser.parse_args().document,
+            Rules(Path(gost_espd_checker.__file__).with_name("rules.yaml")),
+            sys.stdout,
+        ).run()
+    )
