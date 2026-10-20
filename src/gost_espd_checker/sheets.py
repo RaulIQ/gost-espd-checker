@@ -11,6 +11,7 @@ from docx.section import Sections
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
+from gost_espd_checker.breaks import Breaks
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
 from gost_espd_checker.headings import Headings
@@ -18,28 +19,19 @@ from gost_espd_checker.rules import Catalog
 from gost_espd_checker.violation import Violation
 
 
-def _marks(paragraph: Paragraph) -> list[bool]:
-    return [
-        mark.tag.endswith("}br")
-        for mark in paragraph.paragraph_format.element.xpath(
-            './/w:t | .//w:br[@w:type="page"]'
-        )
-        if mark.tag.endswith("}br") or (mark.text or "").strip()
-    ]
-
-
 def _after(
     state: tuple[bool, int], paragraph: Paragraph, sections: Sections
 ) -> tuple[bool, int]:
     fresh, index = state
-    marks = _marks(paragraph)
     if paragraph.paragraph_format.element.xpath("./w:pPr/w:sectPr"):
         return (
             sections[index + 1].start_type
             not in {WD_SECTION.CONTINUOUS, WD_SECTION.NEW_COLUMN},
             index + 1,
         )
-    return (marks[-1] if marks else fresh), index
+    return (
+        Breaks(paragraph).closes() or (fresh and not paragraph.text.strip())
+    ), index
 
 
 @final
@@ -77,5 +69,5 @@ class Sheets(Check):
             if paragraph.paragraph_format.element in titles
             and not fresh
             and not Effective(paragraph).pagebreak()
-            and _marks(paragraph)[:1] != [True]
+            and not Breaks(paragraph).opens()
         )

@@ -8,13 +8,13 @@ from hamcrest import assert_that, equal_to
 
 from gost_espd_checker.cli import Cli
 from tests.bold import bold
-from tests.conforming import conforming
+from tests.conforming import conforming, endorsed
 from tests.rulebook import rulebook
 
 
 def test_exits_with_zero_for_conforming_document(tmp_path: Path) -> None:
     document = Document()
-    conforming(document.sections[0])
+    conforming(endorsed(document).sections[0])
     path = tmp_path / "доклад.docx"
     document.save(str(path))
     assert_that(
@@ -26,7 +26,7 @@ def test_exits_with_zero_for_conforming_document(tmp_path: Path) -> None:
 
 def test_exits_with_one_for_wrong_document(tmp_path: Path) -> None:
     document = Document()
-    conforming(document.sections[0]).right_margin = Mm(15)
+    conforming(endorsed(document).sections[0]).right_margin = Mm(15)
     path = tmp_path / "отчёт.docx"
     document.save(str(path))
     assert_that(
@@ -38,7 +38,7 @@ def test_exits_with_one_for_wrong_document(tmp_path: Path) -> None:
 
 def test_prints_violation_of_wrong_document(tmp_path: Path) -> None:
     document = Document()
-    conforming(document.sections[0]).right_margin = Mm(15)
+    conforming(endorsed(document).sections[0]).right_margin = Mm(15)
     path = tmp_path / "отчёт.docx"
     document.save(str(path))
     out = io.StringIO()
@@ -55,7 +55,7 @@ def test_prints_violation_of_wrong_document(tmp_path: Path) -> None:
 
 def test_prints_violation_of_section_title(tmp_path: Path) -> None:
     document = Document()
-    conforming(document.sections[0])
+    conforming(endorsed(document).sections[0])
     bold(
         document, "1. ОБЩИЕ СВЕДЕНИЯ."
     ).alignment = WD_PARAGRAPH_ALIGNMENT.CENTER

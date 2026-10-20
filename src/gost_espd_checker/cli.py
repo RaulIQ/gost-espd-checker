@@ -10,6 +10,7 @@ import docx
 from typing_extensions import override
 
 import gost_espd_checker
+from gost_espd_checker.endorsement import Endorsement
 from gost_espd_checker.indents import Indents
 from gost_espd_checker.layout import Layout
 from gost_espd_checker.numbering import Numbering
@@ -47,6 +48,7 @@ class Cli(Program):
             *Sheets(document, self.rules).violations(),
             *Indents(document, self.rules).violations(),
             *Pagination(document, self.rules).violations(),
+            *Endorsement(document, self.rules).violations(),
         )
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
