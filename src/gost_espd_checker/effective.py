@@ -22,19 +22,27 @@ class Formatting(Protocol):
         ...
 
     def indent(self) -> Length:
-        """Measure the indent of the first line."""
+        """Measure where the first line starts from the margin of the text."""
         ...
 
     def hyphenation(self) -> bool:
         """Whether Word may hyphenate the paragraph automatically."""
         ...
 
+    def pagebreak(self) -> bool:
+        """Whether Word starts the paragraph on a new page."""
+        ...
+
+
+class Position(Protocol):
+    """Where a paragraph stands in the structure of a document."""
+
     def outline(self) -> int:
         """Tell the outline level: 0 for a section, 9 for body text."""
         ...
 
-    def pagebreak(self) -> bool:
-        """Whether Word starts the paragraph on a new page."""
+    def listed(self) -> bool:
+        """Whether the paragraph is an item of a Word list."""
         ...
 
 
@@ -108,20 +116,32 @@ class Effective(Formatting):
 
     @override
     def indent(self) -> Length:
-        """Take the first indent of the first line set; zero without one."""
-        return next(
-            (
-                found
-                for found in (
-                    self.paragraph.paragraph_format.first_line_indent,
-                    *(
-                        style.paragraph_format.first_line_indent
-                        for style in _chain(self.paragraph.style)
-                    ),
-                )
-                if found is not None
-            ),
-            Twips(0),
+        """Add the first line or hanging indent to the left one, like Word."""
+        marks = [
+            mark
+            for owner in _owners(self.paragraph)
+            for mark in owner.xpath("./w:pPr/w:ind")
+        ]
+        return Twips(
+            next(
+                (
+                    int(value)
+                    for mark in marks
+                    for value in mark.xpath("@w:left | @w:start")[:1]
+                ),
+                0,
+            )
+            + next(
+                (
+                    -int(mark.get(qn("w:hanging")))
+                    if mark.get(qn("w:hanging")) is not None
+                    else int(mark.get(qn("w:firstLine")))
+                    for mark in marks
+                    if mark.get(qn("w:hanging")) is not None
+                    or mark.get(qn("w:firstLine")) is not None
+                ),
+                0,
+            )
         )
 
     @override
@@ -133,16 +153,6 @@ class Effective(Formatting):
             for switch in owner.xpath("./w:pPr/w:suppressAutoHyphens")
         ]
         return not found or found[0].get(qn("w:val")) in {"0", "false", "off"}
-
-    @override
-    def outline(self) -> int:
-        """Take the first outline level set; body text without one."""
-        found = [
-            level
-            for owner in _owners(self.paragraph)
-            for level in owner.xpath("./w:pPr/w:outlineLvl/@w:val")
-        ]
-        return int(found[0]) if found else 9
 
     @override
     def pagebreak(self) -> bool:
@@ -161,6 +171,34 @@ class Effective(Formatting):
             ),
             False,
         )
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class Placement(Position):
+    """A paragraph whose place in the structure falls back on its styles."""
+
+    paragraph: Paragraph
+
+    @override
+    def outline(self) -> int:
+        """Take the first outline level set; body text without one."""
+        found = [
+            level
+            for owner in _owners(self.paragraph)
+            for level in owner.xpath("./w:pPr/w:outlineLvl/@w:val")
+        ]
+        return int(found[0]) if found else 9
+
+    @override
+    def listed(self) -> bool:
+        """Check the first list number set; zero takes the list away."""
+        found = [
+            number
+            for owner in _owners(self.paragraph)
+            for number in owner.xpath("./w:pPr/w:numPr/w:numId/@w:val")
+        ]
+        return bool(found) and found[0] != "0"
 
 
 @final

@@ -8,7 +8,7 @@ from docx.document import Document
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
-from gost_espd_checker.effective import Effective, Lettering
+from gost_espd_checker.effective import Lettering, Placement
 
 
 class Outline(Protocol):
@@ -21,7 +21,7 @@ class Outline(Protocol):
 
 def _level(paragraph: Paragraph, *, styled: bool) -> int:
     text = paragraph.text.strip()
-    outline = Effective(paragraph).outline()
+    outline = Placement(paragraph).outline()
     numbered = (
         1
         if re.match(r"\d+\.\s+\S", text)
@@ -53,7 +53,7 @@ class Headings(Outline):
     def levels(self) -> tuple[tuple[Paragraph, int], ...]:
         """Level every paragraph of the body, leaving out lines of contents."""
         styled = any(
-            Effective(paragraph).outline() in range(9)
+            Placement(paragraph).outline() in range(9)
             for paragraph in self.document.paragraphs
         )
         return tuple(
