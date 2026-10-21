@@ -15,6 +15,7 @@ from gost_espd_checker.contents import Contents
 from gost_espd_checker.endorsement import Endorsement
 from gost_espd_checker.indents import Indents
 from gost_espd_checker.layout import Layout
+from gost_espd_checker.lowercase import Lowercase
 from gost_espd_checker.numbering import Numbering
 from gost_espd_checker.pagination import Pagination
 from gost_espd_checker.program import Program
@@ -45,6 +46,7 @@ class Cli(Program):
             *Pagination(document, self.rules).violations(),
             *Endorsement(document, self.rules).violations(),
             *Contents(document, self.rules).violations(),
+            *Lowercase(document, self.rules).violations(),
         )
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
