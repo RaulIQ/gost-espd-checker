@@ -19,6 +19,7 @@ from gost_espd_checker.figure_numbering import FigureNumbering
 from gost_espd_checker.indents import Indents
 from gost_espd_checker.layout import Layout
 from gost_espd_checker.lowercase import Lowercase
+from gost_espd_checker.notes import Notes
 from gost_espd_checker.numbering import Numbering
 from gost_espd_checker.pagination import Pagination
 from gost_espd_checker.program import Program
@@ -53,6 +54,7 @@ class Cli(Program):
             *FigureNumbering(document, self.rules).violations(),
             *FigureMentions(document, self.rules).violations(),
             *FigureCaptions(document, self.rules).violations(),
+            *Notes(document, self.rules).violations(),
         )
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
