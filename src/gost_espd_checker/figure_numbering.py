@@ -10,6 +10,7 @@ from typing_extensions import override
 from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.illustrations import Illustrations
+from gost_espd_checker.label import Label
 from gost_espd_checker.violation import Violation
 
 
@@ -44,9 +45,7 @@ class FigureNumbering(Check):
         ]
         return tuple(
             Violation(
-                f"иллюстрация «{caption}»"
-                if caption
-                else f"иллюстрация {position + 1} по порядку",
+                str(Label("иллюстрация", caption, position + 1)),
                 self.rules.rule("ESPD-106-18"),
                 text,
             )
