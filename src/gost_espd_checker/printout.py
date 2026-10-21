@@ -16,7 +16,7 @@ from gost_espd_checker.lineage import Lineage
 @final
 @dataclass(frozen=True, slots=True)
 class Printout(Leaves):
-    """Body paragraphs, tables and content controls, split on page breaks."""
+    """Body paragraphs, tables, content controls and text boxes, by pages."""
 
     document: Document
 
@@ -26,6 +26,8 @@ class Printout(Leaves):
         pages: list[list[Paragraph]] = [[]]
         for element in self.document.element.body.xpath(
             "./w:p | ./w:tbl[not(w:tblPr/w:tblpPr)]//w:p | ./w:sdt//w:p"
+            " | ./w:p//w:txbxContent[not(ancestor::*[local-name()='Fallback'"
+            " or local-name()='wgp'])]/w:p"
         ):
             paragraph = Paragraph(element, self.document)
             if pages[-1] and (

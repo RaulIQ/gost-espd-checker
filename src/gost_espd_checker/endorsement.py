@@ -47,6 +47,11 @@ class Endorsement(Check):
         word = lines[index].text.strip()
         return tuple(
             Violation("титульный лист", self.rules.rule("ESPD-104-01"), text)
+            for designation in (
+                "".join(
+                    line.text.strip() for line in lines[index + 1 : index + 2]
+                ),
+            )
             for text, broken in (
                 (
                     f"надпись «{word}» вместо «Утвержден»",
@@ -66,10 +71,12 @@ class Endorsement(Check):
                         "под надписью «Утвержден» нет обозначения листа"
                         " утверждения"
                     ),
-                    not "".join(
-                        line.text.strip()
-                        for line in lines[index + 1 : index + 2]
-                    ).endswith("-ЛУ"),
+                    not re.match(r"\w+\.\S", designation),
+                ),
+                (
+                    f"обозначение «{designation}» не оканчивается на «-ЛУ»",
+                    bool(re.match(r"\w+\.\S", designation))
+                    and not designation.endswith("-ЛУ"),
                 ),
             )
             if broken

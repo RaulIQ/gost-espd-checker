@@ -5,6 +5,7 @@ from docx.oxml.ns import nsdecls
 from hamcrest import assert_that, equal_to
 
 from gost_espd_checker.printout import Printout
+from tests.boxed import boxed
 
 
 def test_starts_new_page_after_page_break() -> None:
@@ -75,4 +76,40 @@ def test_skips_floating_table_in_margin() -> None:
         [line.text for line in Printout(document).pages()[0]],
         equal_to(["Программа"]),
         "floating table in the margin was not skipped",
+    )
+
+
+def test_reads_text_box_once_after_its_paragraph() -> None:
+    document = Document()
+    boxed(document, "УТВЕРЖДЕНО", "ВЛТН.868600-01-ЛУ")
+    document.add_paragraph("Программное обеспечение")
+    assert_that(
+        [line.text for line in Printout(document).pages()[0]],
+        equal_to(
+            ["", "УТВЕРЖДЕНО", "ВЛТН.868600-01-ЛУ", "Программное обеспечение"]
+        ),
+        "text box was not read once right after its paragraph",
+    )
+
+
+def test_skips_text_boxes_of_grouped_shapes() -> None:
+    document = Document()
+    document.add_paragraph().paragraph_format.element.append(
+        parse_xml(
+            "<w:r"
+            ' xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+            ' xmlns:wpg="http://schemas.microsoft.com/office/word/2010/'
+            'wordprocessingGroup"'
+            ' xmlns:wps="http://schemas.microsoft.com/office/word/2010/'
+            'wordprocessingShape">'
+            "<w:drawing><wpg:wgp><wps:wsp><wps:txbx><w:txbxContent><w:p><w:r>"
+            "<w:t>Инв. № подл.</w:t></w:r></w:p></w:txbxContent></wps:txbx>"
+            "</wps:wsp></wpg:wgp></w:drawing></w:r>"
+        )
+    )
+    document.add_paragraph("Листов 12")
+    assert_that(
+        [line.text for line in Printout(document).pages()[0]],
+        equal_to(["", "Листов 12"]),
+        "text box of grouped shapes was not skipped",
     )
