@@ -14,14 +14,14 @@ from gost_espd_checker.position import Position
 class Placement(Position):
     """A paragraph whose place in the structure falls back on its styles."""
 
-    lineage: Ancestry
+    _lineage: Ancestry
 
     @override
     def outline(self) -> int:
         """Take the first outline level set; body text without one."""
         found = [
             level
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for level in owner.xpath("./w:pPr/w:outlineLvl/@w:val")
         ]
         return int(found[0]) if found else 9
@@ -31,7 +31,7 @@ class Placement(Position):
         """Check the first list number set; zero takes the list away."""
         found = [
             number
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for number in owner.xpath("./w:pPr/w:numPr/w:numId/@w:val")
         ]
         return bool(found) and found[0] != "0"

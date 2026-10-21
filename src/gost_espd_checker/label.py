@@ -11,15 +11,15 @@ from typing_extensions import override
 class Label:
     """An element named by its caption, or by its count without one."""
 
-    kind: str
-    caption: str
-    position: int
+    _kind: str
+    _caption: str
+    _position: int
 
     @override
     def __str__(self) -> str:
         """Render as «таблица «Таблица 2»» or «таблица 3 по порядку»."""
         return (
-            f"{self.kind} «{self.caption}»"
-            if self.caption
-            else f"{self.kind} {self.position} по порядку"
+            f"{self._kind} «{self._caption}»"
+            if self._caption
+            else f"{self._kind} {self._position} по порядку"
         )

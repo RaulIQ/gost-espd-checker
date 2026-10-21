@@ -24,8 +24,8 @@ class TableHeads(Check):
     and a short word with a dot is taken for an abbreviation.
     """
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -33,11 +33,11 @@ class TableHeads(Check):
         return tuple(
             Violation(
                 str(Label("таблица", caption, position + 1)),
-                self.rules.rule("ESPD-015-03"),
+                self._rules.rule("ESPD-015-03"),
                 text,
             )
             for position, (table, caption, _) in enumerate(
-                Tables(self.document)
+                Tables(self._document)
             )
             for head in dict.fromkeys(
                 cell.text.strip()

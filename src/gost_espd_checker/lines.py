@@ -16,14 +16,14 @@ from gost_espd_checker.printout import Printout
 class Lines(Iterable[tuple[int, Paragraph]]):
     """Paragraphs with text, paired with the pages they are printed on."""
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(self) -> Iterator[tuple[int, Paragraph]]:
         """Pair each line with text with its page, counted from zero."""
         return (
             (number, line)
-            for number, page in enumerate(Printout(self.document).pages())
+            for number, page in enumerate(Printout(self._document).pages())
             for line in page
             if line.text.strip()
         )

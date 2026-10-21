@@ -13,11 +13,11 @@ from gost_espd_checker.rule import Rule
 class Violation:
     """What is wrong, where in the document, and which rule says so."""
 
-    place: str
-    rule: Rule
-    message: str
+    _place: str
+    _rule: Rule
+    _message: str
 
     @override
     def __str__(self) -> str:
         """Render through the rule, which knows its clause and severity."""
-        return self.rule.line(self.place, self.message)
+        return self._rule.line(self._place, self._message)

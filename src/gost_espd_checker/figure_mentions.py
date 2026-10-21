@@ -19,21 +19,21 @@ from gost_espd_checker.violation import Violation
 class FigureMentions(Check):
     """Clause 2.3.1: mentions read «рис. 12», repeated ones «см. рис. 12»."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report other words, missing figures and repeats without «см.»."""
         numbers = {
             found[1]
-            for _, caption, _, _ in Illustrations(self.document)
+            for _, caption, _, _ in Illustrations(self._document)
             for found in (re.match(r"рис\.?\s*(\d+)", caption, re.IGNORECASE),)
             if found
         }
         mentions = [
             (paragraph.text.strip(), found)
-            for paragraph in Body(self.document)
+            for paragraph in Body(self._document)
             if not re.match(
                 r"рис\.?\s*\d+", paragraph.text.strip(), re.IGNORECASE
             )
@@ -46,7 +46,7 @@ class FigureMentions(Check):
         ]
         return tuple(
             Violation(
-                f"абзац «{text[:40]}»", self.rules.rule("ESPD-106-19"), message
+                f"абзац «{text[:40]}»", self._rules.rule("ESPD-106-19"), message
             )
             for position, (text, found) in enumerate(mentions)
             for message, broken in (

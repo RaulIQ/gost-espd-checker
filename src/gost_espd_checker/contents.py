@@ -21,13 +21,13 @@ from gost_espd_checker.violation import Violation
 class Contents(Check):
     """Clause 2.1.4: contents on its own page, after the annotation."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report the title, the page and the entries of the contents."""
-        lines = tuple(Lines(self.document))
+        lines = tuple(Lines(self._document))
         names = tuple(str(Unnumbered(line.text)) for _, line in lines)
         heading = int(Spot(names, r"содержание|оглавление"))
         if heading < 0:
@@ -35,7 +35,7 @@ class Contents(Check):
         page, title = lines[heading]
         word = names[heading]
         return tuple(
-            Violation("содержание", self.rules.rule("ESPD-106-16"), text)
+            Violation("содержание", self._rules.rule("ESPD-106-16"), text)
             for text, broken in (
                 (
                     f"заголовок «{word}» вместо «СОДЕРЖАНИЕ»",
@@ -64,7 +64,7 @@ class Contents(Check):
                             )
                         ),
                     )
-                    for name in Records(self.document)
+                    for name in Records(self._document)
                 ),
             )
             if broken

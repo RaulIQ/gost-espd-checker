@@ -20,8 +20,8 @@ from gost_espd_checker.violation import Violation
 class Indents(Check):
     """Clause 2.1.6: every structural element starts with an indent."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -29,10 +29,10 @@ class Indents(Check):
         return tuple(
             Violation(
                 f"{Kind(paragraph)} «{paragraph.text.strip()[:40]}»",
-                self.rules.rule("ESPD-106-07"),
+                self._rules.rule("ESPD-106-07"),
                 f"{Kind(paragraph)} начинается без абзацного отступа",
             )
-            for paragraph, level in Headings(self.document).levels()
+            for paragraph, level in Headings(self._document).levels()
             if not level
             and str(Kind(paragraph))
             and Effective(Lineage(paragraph)).indent() <= 0

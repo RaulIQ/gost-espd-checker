@@ -15,12 +15,12 @@ _Style = TypeVar("_Style", bound=CharacterStyle)
 class Bases(Iterable[_Style]):
     """The chain of a style and its bases, nearest first."""
 
-    style: _Style | None
+    _style: _Style | None
 
     @override
     def __iter__(self) -> Iterator[_Style]:
         """Walk from the style through every base style."""
-        style = self.style
+        style = self._style
         while style is not None:
             yield style
             style = style.base_style

@@ -11,7 +11,7 @@ def test_accepts_title_without_period() -> None:
             Document().add_paragraph("1.2. Функции программы"),
             "заголовок",
             rulebook(),
-            hyphenation=False,
+            _hyphenation=False,
         ).violations(),
         empty(),
         "title without a period was not accepted",
@@ -24,7 +24,7 @@ def test_accepts_two_sentences_without_final_period() -> None:
             Document().add_paragraph("3. НАСТРОЙКА. ПРОВЕРКА"),
             "заголовок",
             rulebook(),
-            hyphenation=False,
+            _hyphenation=False,
         ).violations(),
         empty(),
         "two sentences without a final period were not accepted",
@@ -38,7 +38,7 @@ def test_rejects_period_at_end() -> None:
                 Document().add_paragraph("2.1. Состав программы."),
                 "заголовок «2.1. Состав программы.»",
                 rulebook(),
-                hyphenation=False,
+                _hyphenation=False,
             ).violations()[0]
         ),
         contains_string(
@@ -56,7 +56,7 @@ def test_rejects_soft_hyphen() -> None:
                 Document().add_paragraph("4. НАСТРОЙКА ПОЛЬЗОВАТЕ\u00adЛЯ"),
                 "заголовок",
                 rulebook(),
-                hyphenation=False,
+                _hyphenation=False,
             ).violations()[0]
         ),
         contains_string("ESPD-106-11: в заголовке стоит перенос"),
@@ -71,7 +71,7 @@ def test_rejects_automatic_hyphenation_of_document() -> None:
                 Document().add_paragraph("5. ДОПОЛНИТЕЛЬНЫЕ ВОЗМОЖНОСТИ"),
                 "заголовок",
                 rulebook(),
-                hyphenation=True,
+                _hyphenation=True,
             ).violations()[0]
         ),
         contains_string(
@@ -87,7 +87,7 @@ def test_reports_period_and_hyphen_together() -> None:
             Document().add_paragraph("6.1. Сообще\u00adния."),
             "заголовок",
             rulebook(),
-            hyphenation=False,
+            _hyphenation=False,
         ).violations(),
         has_length(2),
         "period and hyphen were not reported together",

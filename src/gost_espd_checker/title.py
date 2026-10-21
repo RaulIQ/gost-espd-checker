@@ -18,17 +18,17 @@ from gost_espd_checker.violation import Violation
 class Title(Check):
     """Clause 2.1.7: no hyphens in a title and no period at its end."""
 
-    paragraph: Paragraph
-    place: str
-    rules: Catalog
-    hyphenation: bool
+    _paragraph: Paragraph
+    _place: str
+    _rules: Catalog
+    _hyphenation: bool
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report a period at the end, a soft hyphen and auto hyphenation."""
-        text = self.paragraph.text.strip()
+        text = self._paragraph.text.strip()
         return tuple(
-            Violation(self.place, self.rules.rule(key), message)
+            Violation(self._place, self._rules.rule(key), message)
             for key, message, broken in (
                 (
                     "ESPD-106-11",
@@ -38,8 +38,8 @@ class Title(Check):
                 (
                     "ESPD-106-11",
                     "в заголовке разрешены автоматические переносы",
-                    self.hyphenation
-                    and Effective(Lineage(self.paragraph)).hyphenation(),
+                    self._hyphenation
+                    and Effective(Lineage(self._paragraph)).hyphenation(),
                 ),
                 (
                     "ESPD-106-12",

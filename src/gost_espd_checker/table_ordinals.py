@@ -19,8 +19,8 @@ from gost_espd_checker.violation import Violation
 class TableOrdinals(Check):
     """GOST 1.5-2001, clause 4.5.7: no column «Номер по порядку»."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -28,11 +28,11 @@ class TableOrdinals(Check):
         return tuple(
             Violation(
                 str(Label("таблица", caption, position + 1)),
-                self.rules.rule("ESPD-015-05"),
+                self._rules.rule("ESPD-015-05"),
                 f"в таблице есть графа «{head}»",
             )
             for position, (table, caption, _) in enumerate(
-                Tables(self.document)
+                Tables(self._document)
             )
             for head in dict.fromkeys(
                 cell.text.strip() for cell in table.rows[0].cells if table.rows

@@ -19,15 +19,15 @@ from gost_espd_checker.violation import Violation
 class Lowercase(Check):
     """Clause 2.1.4: names in the contents are written in small letters."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report names in capitals and names starting with a small letter."""
         return tuple(
-            Violation("содержание", self.rules.rule("ESPD-106-28"), text)
-            for record in Records(self.document)
+            Violation("содержание", self._rules.rule("ESPD-106-28"), text)
+            for record in Records(self._document)
             for letters in (
                 "".join(re.findall(r"[^\W\d_]", str(Unnumbered(record)))),
             )

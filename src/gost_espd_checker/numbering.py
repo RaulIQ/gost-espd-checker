@@ -19,19 +19,19 @@ from gost_espd_checker.violation import Violation
 class Numbering(Check):
     """Clause 2.1.9: arabic numbers with a dot, running through a section."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report numbers that break the run; titles without one restart it."""
-        entries = tuple(Entries(self.document))
+        entries = tuple(Entries(self._document))
         return tuple(
             Violation(
                 f"заголовок «{paragraph.text.strip()}»"
                 if level
                 else f"пункт «{paragraph.text.strip()[:40]}»",
-                self.rules.rule("ESPD-106-17"),
+                self._rules.rule("ESPD-106-17"),
                 message,
             )
             for (paragraph, level, number, dotted), before in zip(

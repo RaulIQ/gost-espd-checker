@@ -17,14 +17,14 @@ from gost_espd_checker.rule import Rule
 class Rules(Catalog):
     """The table of rules in a YAML file."""
 
-    path: Path
+    _path: Path
 
     @override
     def rule(self, key: str) -> Rule:
         """Find the row of the rule; fail when the table lacks it."""
-        rows = yaml.safe_load(self.path.read_text(encoding="utf-8"))
+        rows = yaml.safe_load(self._path.read_text(encoding="utf-8"))
         found = [row for row in rows if row["id"] == key]
         if not found:
-            message = f"Rule {key} is missing from {self.path}"
+            message = f"Rule {key} is missing from {self._path}"
             raise KeyError(message)
         return Row(found[0])

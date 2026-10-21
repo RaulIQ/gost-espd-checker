@@ -19,19 +19,19 @@ from gost_espd_checker.violation import Violation
 class Layout(Check):
     """The sheet, the margins and the header of every section."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Violations of every section, numbered from one."""
         return tuple(
             violation
-            for number, section in enumerate(self.document.sections, start=1)
+            for number, section in enumerate(self._document.sections, start=1)
             for check in (
-                PageSize(section, number, self.rules),
-                Margins(section, number, self.rules),
-                Heading(section, number, self.rules),
+                PageSize(section, number, self._rules),
+                Margins(section, number, self._rules),
+                Heading(section, number, self._rules),
             )
             for violation in check.violations()
         )

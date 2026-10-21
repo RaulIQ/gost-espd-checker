@@ -12,12 +12,12 @@ from typing_extensions import override
 class Successors(Container[tuple[int, ...]]):
     """The next number at any depth, or the first one a level deeper."""
 
-    before: tuple[int, ...]
+    _before: tuple[int, ...]
 
     @override
     def __contains__(self, number: object) -> bool:
         """Check that the number continues the one before it."""
         return number in {
-            (*self.before[:depth], self.before[depth] + 1)
-            for depth in range(len(self.before))
-        } | {(*self.before, 1)}
+            (*self._before[:depth], self._before[depth] + 1)
+            for depth in range(len(self._before))
+        } | {(*self._before, 1)}

@@ -14,12 +14,12 @@ from gost_espd_checker.printout import Printout
 class Front(SupportsInt):
     """The first page that is no approval sheet."""
 
-    document: Document
+    _document: Document
 
     @override
     def __int__(self) -> int:
         """Give the index of the title page, or the count of pages."""
-        pages = Printout(self.document).pages()
+        pages = Printout(self._document).pages()
         return next(
             (
                 number

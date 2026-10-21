@@ -18,17 +18,19 @@ from gost_espd_checker.violation import Violation
 class FigureCaptions(Check):
     """Clause 2.3.1: the title goes over an illustration, the number under."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report numbers over illustrations and titles beside numbers."""
         return tuple(
             Violation(
-                f"иллюстрация «{caption}»", self.rules.rule("ESPD-106-20"), text
+                f"иллюстрация «{caption}»",
+                self._rules.rule("ESPD-106-20"),
+                text,
             )
-            for _, caption, above, _ in Illustrations(self.document)
+            for _, caption, above, _ in Illustrations(self._document)
             if caption
             for text, broken in (
                 (

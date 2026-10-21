@@ -38,35 +38,35 @@ from gost_espd_checker.titles import Titles
 class Cli(Program):
     """Checks one ``.docx`` file and prints a violation per line."""
 
-    path: Path
-    rules: Catalog
-    out: TextIO
+    _path: Path
+    _rules: Catalog
+    _out: TextIO
 
     @override
     def run(self) -> int:
         """Print the violations; exit with one when there are any."""
-        document = docx.Document(str(self.path))
+        document = docx.Document(str(self._path))
         found = (
-            *Layout(document, self.rules).violations(),
-            *Titles(document, self.rules).violations(),
-            *Numbering(document, self.rules).violations(),
-            *Sheets(document, self.rules).violations(),
-            *Indents(document, self.rules).violations(),
-            *Pagination(document, self.rules).violations(),
-            *Endorsement(document, self.rules).violations(),
-            *Contents(document, self.rules).violations(),
-            *Lowercase(document, self.rules).violations(),
-            *FigureNumbering(document, self.rules).violations(),
-            *FigureMentions(document, self.rules).violations(),
-            *FigureCaptions(document, self.rules).violations(),
-            *Notes(document, self.rules).violations(),
-            *TableCaptions(document, self.rules).violations(),
-            *TableNumbering(document, self.rules).violations(),
-            *TableMentions(document, self.rules).violations(),
-            *TableHeads(document, self.rules).violations(),
-            *TableOrdinals(document, self.rules).violations(),
+            *Layout(document, self._rules).violations(),
+            *Titles(document, self._rules).violations(),
+            *Numbering(document, self._rules).violations(),
+            *Sheets(document, self._rules).violations(),
+            *Indents(document, self._rules).violations(),
+            *Pagination(document, self._rules).violations(),
+            *Endorsement(document, self._rules).violations(),
+            *Contents(document, self._rules).violations(),
+            *Lowercase(document, self._rules).violations(),
+            *FigureNumbering(document, self._rules).violations(),
+            *FigureMentions(document, self._rules).violations(),
+            *FigureCaptions(document, self._rules).violations(),
+            *Notes(document, self._rules).violations(),
+            *TableCaptions(document, self._rules).violations(),
+            *TableNumbering(document, self._rules).violations(),
+            *TableMentions(document, self._rules).violations(),
+            *TableHeads(document, self._rules).violations(),
+            *TableOrdinals(document, self._rules).violations(),
         )
-        self.out.writelines(f"{violation}\n" for violation in found)
+        self._out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
 
 

@@ -13,10 +13,10 @@ from gost_espd_checker.rule import Rule
 class Row(Rule):
     """One row of the table of rules."""
 
-    fields: dict[str, object]
+    _fields: dict[str, object]
 
     @override
     def line(self, place: str, message: str) -> str:
         """Render as ``place: severity id: message (clause)``."""
-        head = f"{self.fields['severity']} {self.fields['id']}"
-        return f"{place}: {head}: {message} ({self.fields['clause']})"
+        head = f"{self._fields['severity']} {self._fields['id']}"
+        return f"{place}: {head}: {message} ({self._fields['clause']})"

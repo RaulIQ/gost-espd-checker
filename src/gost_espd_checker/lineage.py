@@ -18,14 +18,14 @@ from gost_espd_checker.bases import Bases
 class Lineage(Ancestry):
     """A paragraph, its style and the bases of that style, in that order."""
 
-    paragraph: Paragraph
+    _paragraph: Paragraph
 
     @override
     def owners(self) -> tuple[BaseOxmlElement, ...]:
         """Put the paragraph first, then its style and every base style."""
         return (
-            self.paragraph.paragraph_format.element,
-            *(style.element for style in Bases(self.paragraph.style)),
+            self._paragraph.paragraph_format.element,
+            *(style.element for style in Bases(self._paragraph.style)),
         )
 
     @override
@@ -40,13 +40,13 @@ class Lineage(Ancestry):
                         *(pick(style.font) for style in Bases(run.style)),
                         *(
                             pick(style.font)
-                            for style in Bases(self.paragraph.style)
+                            for style in Bases(self._paragraph.style)
                         ),
                     )
                     if found is not None
                 ),
                 False,
             )
-            for run in self.paragraph.runs
+            for run in self._paragraph.runs
             if run.text.strip()
         )

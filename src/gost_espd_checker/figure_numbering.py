@@ -19,13 +19,13 @@ from gost_espd_checker.violation import Violation
 class FigureNumbering(Check):
     """Clause 2.3.1: illustrations are numbered in order, anew in appendices."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report missing numbers and numbers out of order."""
-        figures = tuple(Illustrations(self.document))
+        figures = tuple(Illustrations(self._document))
         numbers = [
             int(found[1]) if found else 0
             for _, caption, _, _ in figures
@@ -46,7 +46,7 @@ class FigureNumbering(Check):
         return tuple(
             Violation(
                 str(Label("иллюстрация", caption, position + 1)),
-                self.rules.rule("ESPD-106-18"),
+                self._rules.rule("ESPD-106-18"),
                 text,
             )
             for position, (_, caption, _, _) in enumerate(figures)

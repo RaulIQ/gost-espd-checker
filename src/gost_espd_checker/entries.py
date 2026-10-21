@@ -17,14 +17,14 @@ from gost_espd_checker.headings import Headings
 class Entries(Iterable[tuple[Paragraph, int, tuple[int, ...], bool]]):
     """Titles and points, each with its level, number and trailing dot."""
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(
         self,
     ) -> Iterator[tuple[Paragraph, int, tuple[int, ...], bool]]:
         """Give every title, and every point with two or more parts."""
-        for paragraph, level in Headings(self.document).levels():
+        for paragraph, level in Headings(self._document).levels():
             found = re.match(
                 r"(\d+(?:\.\d+)*)(\.?)\s+\S", paragraph.text.strip()
             )
