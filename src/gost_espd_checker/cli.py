@@ -13,6 +13,9 @@ import gost_espd_checker
 from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.contents import Contents
 from gost_espd_checker.endorsement import Endorsement
+from gost_espd_checker.figure_captions import FigureCaptions
+from gost_espd_checker.figure_mentions import FigureMentions
+from gost_espd_checker.figure_numbering import FigureNumbering
 from gost_espd_checker.indents import Indents
 from gost_espd_checker.layout import Layout
 from gost_espd_checker.lowercase import Lowercase
@@ -47,6 +50,9 @@ class Cli(Program):
             *Endorsement(document, self.rules).violations(),
             *Contents(document, self.rules).violations(),
             *Lowercase(document, self.rules).violations(),
+            *FigureNumbering(document, self.rules).violations(),
+            *FigureMentions(document, self.rules).violations(),
+            *FigureCaptions(document, self.rules).violations(),
         )
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
