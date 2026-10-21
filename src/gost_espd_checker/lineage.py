@@ -1,24 +1,16 @@
 """A paragraph together with the styles it inherits from."""
 
-from collections.abc import Iterator
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TypeVar, final
+from typing import final
 
 from docx.oxml.xmlchemy import BaseOxmlElement
-from docx.styles.style import CharacterStyle
 from docx.text.font import Font
 from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.ancestry import Ancestry
-
-_Style = TypeVar("_Style", bound=CharacterStyle)
-
-
-def _chain(style: _Style | None) -> Iterator[_Style]:
-    while style is not None:
-        yield style
-        style = style.base_style
+from gost_espd_checker.bases import Bases
 
 
 @final
@@ -33,17 +25,27 @@ class Lineage(Ancestry):
         """Put the paragraph first, then its style and every base style."""
         return (
             self.paragraph.paragraph_format.element,
-            *(style.element for style in _chain(self.paragraph.style)),
+            *(style.element for style in Bases(self.paragraph.style)),
         )
 
     @override
-    def fonts(self) -> tuple[tuple[Font, ...], ...]:
-        """Put the run first, then its styles, then the paragraph styles."""
+    def flags(self, pick: Callable[[Font], bool | None]) -> tuple[bool, ...]:
+        """Take the run, then its styles, then the styles of the paragraph."""
         return tuple(
-            (
-                run.font,
-                *(style.font for style in _chain(run.style)),
-                *(style.font for style in _chain(self.paragraph.style)),
+            next(
+                (
+                    found
+                    for found in (
+                        pick(run.font),
+                        *(pick(style.font) for style in Bases(run.style)),
+                        *(
+                            pick(style.font)
+                            for style in Bases(self.paragraph.style)
+                        ),
+                    )
+                    if found is not None
+                ),
+                False,
             )
             for run in self.paragraph.runs
             if run.text.strip()

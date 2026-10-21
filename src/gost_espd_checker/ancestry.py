@@ -1,5 +1,6 @@
 """The elements a paragraph inherits its formatting from."""
 
+from collections.abc import Callable
 from typing import Protocol
 
 from docx.oxml.xmlchemy import BaseOxmlElement
@@ -13,6 +14,6 @@ class Ancestry(Protocol):
         """List the paragraph and then the elements of its styles."""
         ...
 
-    def fonts(self) -> tuple[tuple[Font, ...], ...]:
-        """List, for every run with text, its font and the fonts of styles."""
+    def flags(self, pick: Callable[[Font], bool | None]) -> tuple[bool, ...]:
+        """Settle a font switch for every run with text; off when unset."""
         ...

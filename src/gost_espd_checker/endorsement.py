@@ -6,27 +6,14 @@ from typing import final
 
 from docx.document import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.text.paragraph import Paragraph
 from typing_extensions import override
 
 from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.effective import Effective
 from gost_espd_checker.lineage import Lineage
-from gost_espd_checker.printout import Printout
+from gost_espd_checker.title_page import TitlePage
 from gost_espd_checker.violation import Violation
-
-
-def _title(document: Document) -> list[Paragraph]:
-    page = next(
-        (
-            page
-            for page in Printout(document).pages()
-            if not any("лист утверждения" in line.text.lower() for line in page)
-        ),
-        (),
-    )
-    return [line for line in page if line.text.strip()]
 
 
 @final
@@ -40,7 +27,7 @@ class Endorsement(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report a missing, misplaced or misspelt inscription."""
-        lines = _title(self.document)
+        lines = tuple(TitlePage(self.document))
         index = next(
             (
                 position
@@ -51,11 +38,15 @@ class Endorsement(Check):
         )
         if index < 0:
             return (
-                self._violation("на титульном листе нет надписи «Утвержден»"),
+                Violation(
+                    "титульный лист",
+                    self.rules.rule("ESPD-104-01"),
+                    "на титульном листе нет надписи «Утвержден»",
+                ),
             )
         word = lines[index].text.strip()
         return tuple(
-            self._violation(text)
+            Violation("титульный лист", self.rules.rule("ESPD-104-01"), text)
             for text, broken in (
                 (
                     f"надпись «{word}» вместо «Утвержден»",
@@ -83,6 +74,3 @@ class Endorsement(Check):
             )
             if broken
         )
-
-    def _violation(self, text: str) -> Violation:
-        return Violation("титульный лист", self.rules.rule("ESPD-104-01"), text)
