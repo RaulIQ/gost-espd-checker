@@ -19,12 +19,12 @@ from gost_espd_checker.unnumbered import Unnumbered
 class Records(Iterable[str]):
     """The run of lines right after the contents title, each with a page."""
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(self) -> Iterator[str]:
         """Give the number and the name of every record, without its page."""
-        lines = tuple(Lines(self.document))
+        lines = tuple(Lines(self._document))
         heading = int(
             Spot(
                 tuple(str(Unnumbered(line.text)) for _, line in lines),

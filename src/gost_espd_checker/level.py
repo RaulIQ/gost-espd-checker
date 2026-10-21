@@ -17,14 +17,14 @@ from gost_espd_checker.placement import Placement
 class Level(SupportsInt):
     """A paragraph leveled by its outline, or by a bold number without one."""
 
-    paragraph: Paragraph
-    styled: bool
+    _paragraph: Paragraph
+    _styled: bool
 
     @override
     def __int__(self) -> int:
         """Give 1 for a section, 2 for a subsection, 0 for anything else."""
-        text = self.paragraph.text.strip()
-        outline = Placement(Lineage(self.paragraph)).outline()
+        text = self._paragraph.text.strip()
+        outline = Placement(Lineage(self._paragraph)).outline()
         numbered = (
             1
             if re.match(r"\d+\.\s+\S", text)
@@ -36,10 +36,10 @@ class Level(SupportsInt):
             0
             if not re.search(r"\w", text)
             else outline + 1
-            if self.styled and outline in {0, 1}
+            if self._styled and outline in {0, 1}
             else 0
-            if self.styled
+            if self._styled
             else numbered
-            if Lettering(Lineage(self.paragraph)).bold()
+            if Lettering(Lineage(self._paragraph)).bold()
             else 0
         )

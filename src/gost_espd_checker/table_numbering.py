@@ -23,15 +23,15 @@ class TableNumbering(Check):
     which the clause allows, and are left alone.
     """
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report numbers that break the run of their part."""
         numbered = [
             (caption, appendix, found[1])
-            for _, caption, appendix in Tables(self.document)
+            for _, caption, appendix in Tables(self._document)
             for found in (
                 re.match(r"таблица\s+([\w.]*\d)", caption, re.IGNORECASE),
             )
@@ -40,7 +40,7 @@ class TableNumbering(Check):
         return tuple(
             Violation(
                 f"таблица «{caption}»",
-                self.rules.rule("ESPD-015-02"),
+                self._rules.rule("ESPD-015-02"),
                 f"номер {number} вместо {expected}",
             )
             for position, (caption, appendix, number) in enumerate(numbered)

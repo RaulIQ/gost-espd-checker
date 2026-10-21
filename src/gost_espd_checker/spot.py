@@ -12,8 +12,8 @@ from typing_extensions import override
 class Spot(SupportsInt):
     """The index of a name like «АННОТАЦИЯ» among the names of lines."""
 
-    names: tuple[str, ...]
-    pattern: str
+    _names: tuple[str, ...]
+    _pattern: str
 
     @override
     def __int__(self) -> int:
@@ -21,8 +21,8 @@ class Spot(SupportsInt):
         return next(
             (
                 position
-                for position, name in enumerate(self.names)
-                if re.fullmatch(self.pattern, name, re.IGNORECASE)
+                for position, name in enumerate(self._names)
+                if re.fullmatch(self._pattern, name, re.IGNORECASE)
             ),
             -1,
         )

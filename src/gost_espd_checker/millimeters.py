@@ -12,11 +12,11 @@ from typing_extensions import override
 class Millimeters:
     """A length that may be missing from the document."""
 
-    length: Length | None
+    _length: Length | None
 
     @override
     def __str__(self) -> str:
         """Render as ``25,4 мм``, or as unset when the length is missing."""
-        if self.length is None:
+        if self._length is None:
             return "не задано"
-        return f"{self.length.mm:.1f} мм".replace(".", ",")
+        return f"{self._length.mm:.1f} мм".replace(".", ",")

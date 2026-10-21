@@ -12,9 +12,9 @@ from typing_extensions import override
 class Unnumbered:
     """The text of a line after its number, like «1.2.» or «3.»."""
 
-    text: str
+    _text: str
 
     @override
     def __str__(self) -> str:
         """Drop the number and the spaces around the text."""
-        return re.sub(r"^\d+(?:\.\d+)*\.?\s+", "", self.text.strip())
+        return re.sub(r"^\d+(?:\.\d+)*\.?\s+", "", self._text.strip())

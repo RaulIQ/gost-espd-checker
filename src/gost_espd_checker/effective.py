@@ -17,14 +17,14 @@ from gost_espd_checker.formatting import Formatting
 class Effective(Formatting):
     """A paragraph whose properties fall back on its style and its bases."""
 
-    lineage: Ancestry
+    _lineage: Ancestry
 
     @override
     def alignment(self) -> WD_PARAGRAPH_ALIGNMENT:
         """Take the first alignment set; Word aligns left without one."""
         found = [
             value
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for value in owner.xpath("./w:pPr/w:jc/@w:val")
         ]
         return WD_PARAGRAPH_ALIGNMENT.from_xml(
@@ -38,7 +38,7 @@ class Effective(Formatting):
         """Add the first line or hanging indent to the left one, like Word."""
         marks = [
             mark
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for mark in owner.xpath("./w:pPr/w:ind")
         ]
         return Twips(
@@ -68,7 +68,7 @@ class Effective(Formatting):
         """Allow hyphenation unless the paragraph or a style suppresses it."""
         found = [
             switch
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for switch in owner.xpath("./w:pPr/w:suppressAutoHyphens")
         ]
         return not found or found[0].get(qn("w:val")) in {"0", "false", "off"}
@@ -78,7 +78,7 @@ class Effective(Formatting):
         """Take the first page break before set; none without one."""
         found = [
             switch
-            for owner in self.lineage.owners()
+            for owner in self._lineage.owners()
             for switch in owner.xpath("./w:pPr/w:pageBreakBefore")
         ]
         return bool(found) and found[0].get(qn("w:val")) not in {

@@ -21,33 +21,33 @@ from gost_espd_checker.violation import Violation
 class Titles(Check):
     """Every title that the structure of the document reveals."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Check every section and subsection title of the body."""
         hyphenation = any(
             switch.get(qn("w:val")) not in {"0", "false", "off"}
-            for switch in self.document.settings.element.xpath(
+            for switch in self._document.settings.element.xpath(
                 "./w:autoHyphenation"
             )
         )
         return tuple(
             violation
-            for paragraph, level in Headings(self.document).levels()
+            for paragraph, level in Headings(self._document).levels()
             if level
             for check in (
                 (SectionTitle if level == 1 else SubsectionTitle)(
                     paragraph,
                     f"заголовок «{paragraph.text.strip()}»",
-                    self.rules,
+                    self._rules,
                 ),
                 Title(
                     paragraph,
                     f"заголовок «{paragraph.text.strip()}»",
-                    self.rules,
-                    hyphenation=hyphenation,
+                    self._rules,
+                    hyphenation,
                 ),
             )
             for violation in check.violations()

@@ -23,12 +23,12 @@ class Illustrations(Iterable[tuple[Paragraph, str, bool, int]]):
     illustration, and the count of appendices before it.
     """
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(self) -> Iterator[tuple[Paragraph, str, bool, int]]:
         """Look for the number under the illustration, then right over it."""
-        paragraphs = tuple(Body(self.document))
+        paragraphs = tuple(Body(self._document))
         drawn = tuple(
             bool(
                 paragraph.paragraph_format.element.xpath(

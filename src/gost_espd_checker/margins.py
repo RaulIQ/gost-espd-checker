@@ -18,24 +18,24 @@ from gost_espd_checker.violation import Violation
 class Margins(Check):
     """Clause 2.1.2: margins of 25, 20, 10 and 15 mm, to the twip."""
 
-    section: Section
-    number: int
-    rules: Catalog
+    _section: Section
+    _number: int
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Every margin that differs from its norm or is missing."""
         return tuple(
             Violation(
-                f"раздел {self.number}",
-                self.rules.rule("ESPD-106-02"),
+                f"раздел {self._number}",
+                self._rules.rule("ESPD-106-02"),
                 f"{side} поле {Millimeters(margin)} вместо {norm} мм",
             )
             for side, margin, norm in (
-                ("верхнее", self.section.top_margin, 25),
-                ("левое", self.section.left_margin, 20),
-                ("правое", self.section.right_margin, 10),
-                ("нижнее", self.section.bottom_margin, 15),
+                ("верхнее", self._section.top_margin, 25),
+                ("левое", self._section.left_margin, 20),
+                ("правое", self._section.right_margin, 10),
+                ("нижнее", self._section.bottom_margin, 15),
             )
             if margin is None or margin.twips != Mm(norm).twips
         )

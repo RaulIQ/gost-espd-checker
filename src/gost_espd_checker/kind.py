@@ -16,12 +16,12 @@ from gost_espd_checker.placement import Placement
 class Kind:
     """A paragraph named a point, an enumeration, or nothing."""
 
-    paragraph: Paragraph
+    _paragraph: Paragraph
 
     @override
     def __str__(self) -> str:
         """Name the element by its number, its dash or its Word list."""
-        text = self.paragraph.text.strip()
+        text = self._paragraph.text.strip()
         return (
             ""
             if not re.search(r"\w", text)
@@ -29,6 +29,6 @@ class Kind:
             if re.match(r"\d+(?:\.\d+)+\.\s+\S", text)
             else "перечисление"
             if re.match(r"(?:\d+[.)]|[-\u2013\u2014\u2022])\s+\S", text)
-            or Placement(Lineage(self.paragraph)).listed()
+            or Placement(Lineage(self._paragraph)).listed()
             else ""
         )

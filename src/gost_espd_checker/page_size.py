@@ -18,14 +18,14 @@ from gost_espd_checker.violation import Violation
 class PageSize(Check):
     """Clause 1.5: an A4 portrait sheet (form 1) or an A3 landscape one."""
 
-    section: Section
-    number: int
-    rules: Catalog
+    _section: Section
+    _number: int
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report the sheet unless it is A4 portrait or A3 landscape."""
-        width, height = self.section.page_width, self.section.page_height
+        width, height = self._section.page_width, self._section.page_height
         if (width and width.twips, height and height.twips) in {
             (Mm(210).twips, Mm(297).twips),
             (Mm(420).twips, Mm(297).twips),
@@ -33,8 +33,8 @@ class PageSize(Check):
             return ()
         return (
             Violation(
-                f"раздел {self.number}",
-                self.rules.rule("ESPD-106-01"),
+                f"раздел {self._number}",
+                self._rules.rule("ESPD-106-01"),
                 f"лист {Millimeters(width)} на {Millimeters(height)} вместо"
                 " A4 книжной ориентации или A3 альбомной",
             ),

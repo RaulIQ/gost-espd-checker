@@ -19,17 +19,17 @@ from gost_espd_checker.violation import Violation
 class SubsectionTitle(Check):
     """Clause 2.1.7: a subsection title starts indented, with one capital."""
 
-    paragraph: Paragraph
-    place: str
-    rules: Catalog
+    _paragraph: Paragraph
+    _place: str
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report a missing indent and letters other than a first capital."""
-        formatting = Effective(Lineage(self.paragraph))
-        letters = [char for char in self.paragraph.text if char.isalpha()]
+        formatting = Effective(Lineage(self._paragraph))
+        letters = [char for char in self._paragraph.text if char.isalpha()]
         return tuple(
-            Violation(self.place, self.rules.rule("ESPD-106-10"), message)
+            Violation(self._place, self._rules.rule("ESPD-106-10"), message)
             for message, broken in (
                 (
                     "заголовок подраздела записан без абзацного отступа",
@@ -43,7 +43,7 @@ class SubsectionTitle(Check):
                     not letters
                     or letters[0].islower()
                     or not any(letter.islower() for letter in letters)
-                    or Lettering(Lineage(self.paragraph)).capitals(),
+                    or Lettering(Lineage(self._paragraph)).capitals(),
                 ),
             )
             if broken

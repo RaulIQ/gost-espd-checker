@@ -24,12 +24,12 @@ class Tables(Iterable[tuple[Table, str, str]]):
     list itself rather than a table of the text.
     """
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(self) -> Iterator[tuple[Table, str, str]]:
         """Start a table at its first paragraph and look right over it."""
-        paragraphs = tuple(Body(self.document))
+        paragraphs = tuple(Body(self._document))
         owners = tuple(
             tuple(
                 paragraph.paragraph_format.element.xpath(
@@ -80,7 +80,7 @@ class Tables(Iterable[tuple[Table, str, str]]):
             ):
                 continue
             yield (
-                Table(owners[index][0], self.document),
+                Table(owners[index][0], self._document),
                 "".join(
                     text
                     for text in near

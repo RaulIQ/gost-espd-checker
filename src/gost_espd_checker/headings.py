@@ -19,17 +19,17 @@ from gost_espd_checker.placement import Placement
 class Headings(Outline):
     """Titles found by outline levels, or by bold numbered paragraphs."""
 
-    document: Document
+    _document: Document
 
     @override
     def levels(self) -> tuple[tuple[Paragraph, int], ...]:
         """Level every paragraph of the body, leaving out lines of contents."""
         styled = any(
             Placement(Lineage(paragraph)).outline() in range(9)
-            for paragraph in self.document.paragraphs
+            for paragraph in self._document.paragraphs
         )
         return tuple(
-            (paragraph, int(Level(paragraph, styled=styled)))
-            for paragraph in self.document.paragraphs
+            (paragraph, int(Level(paragraph, styled)))
+            for paragraph in self._document.paragraphs
             if not re.search(r"\t\s*\d+$", paragraph.text)
         )

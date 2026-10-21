@@ -20,22 +20,22 @@ from gost_espd_checker.violation import Violation
 class SectionTitle(Check):
     """Clause 2.1.7: a section title is in capitals and centered."""
 
-    paragraph: Paragraph
-    place: str
-    rules: Catalog
+    _paragraph: Paragraph
+    _place: str
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report lowercase letters and an alignment other than centered."""
-        formatting = Effective(Lineage(self.paragraph))
+        formatting = Effective(Lineage(self._paragraph))
         return tuple(
-            Violation(self.place, self.rules.rule(key), message)
+            Violation(self._place, self._rules.rule(key), message)
             for key, message, broken in (
                 (
                     "ESPD-106-08",
                     "заголовок раздела написан не прописными буквами",
-                    any(letter.islower() for letter in self.paragraph.text)
-                    and not Lettering(Lineage(self.paragraph)).capitals(),
+                    any(letter.islower() for letter in self._paragraph.text)
+                    and not Lettering(Lineage(self._paragraph)).capitals(),
                 ),
                 (
                     "ESPD-106-09",

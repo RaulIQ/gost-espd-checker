@@ -14,16 +14,16 @@ from gost_espd_checker.typeface import Typeface
 class Lettering(Typeface):
     """The runs of a paragraph, whose fonts fall back on their styles."""
 
-    lineage: Ancestry
+    _lineage: Ancestry
 
     @override
     def capitals(self) -> bool:
         """Check that every run with text is shown in capitals."""
-        found = self.lineage.flags(lambda font: font.all_caps)
+        found = self._lineage.flags(lambda font: font.all_caps)
         return bool(found) and all(found)
 
     @override
     def bold(self) -> bool:
         """Check that every run with text is bold."""
-        found = self.lineage.flags(lambda font: font.bold)
+        found = self._lineage.flags(lambda font: font.bold)
         return bool(found) and all(found)

@@ -18,18 +18,18 @@ from gost_espd_checker.lineage import Lineage
 class Printout(Leaves):
     """Body paragraphs, tables, content controls and text boxes, by pages."""
 
-    document: Document
+    _document: Document
 
     @override
     def pages(self) -> tuple[tuple[Paragraph, ...], ...]:
         """Split on breaks and sections, skipping floating margin tables."""
         pages: list[list[Paragraph]] = [[]]
-        for element in self.document.element.body.xpath(
+        for element in self._document.element.body.xpath(
             "./w:p | ./w:tbl[not(w:tblPr/w:tblpPr)]//w:p | ./w:sdt//w:p"
             " | ./w:p//w:txbxContent[not(ancestor::*[local-name()='Fallback'"
             " or local-name()='wgp'])]/w:p"
         ):
-            paragraph = Paragraph(element, self.document)
+            paragraph = Paragraph(element, self._document)
             if pages[-1] and (
                 Effective(Lineage(paragraph)).pagebreak()
                 or Breaks(paragraph).opens()

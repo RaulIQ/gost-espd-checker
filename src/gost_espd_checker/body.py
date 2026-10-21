@@ -17,15 +17,15 @@ from gost_espd_checker.printout import Printout
 class Body(Iterable[Paragraph]):
     """Every paragraph on the pages that follow the title page."""
 
-    document: Document
+    _document: Document
 
     @override
     def __iter__(self) -> Iterator[Paragraph]:
         """Skip the approval sheet and the title page."""
         return (
             paragraph
-            for page in Printout(self.document).pages()[
-                int(Front(self.document)) + 1 :
+            for page in Printout(self._document).pages()[
+                int(Front(self._document)) + 1 :
             ]
             for paragraph in page
         )

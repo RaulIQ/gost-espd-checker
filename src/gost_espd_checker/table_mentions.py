@@ -19,15 +19,15 @@ from gost_espd_checker.violation import Violation
 class TableMentions(Check):
     """GOST 1.5-2001, clause 4.5.3: the text mentions every table by word."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report short words, missing tables and tables nobody mentions."""
         tables = [
             (caption, found[1])
-            for _, caption, _ in Tables(self.document)
+            for _, caption, _ in Tables(self._document)
             for found in (
                 re.match(r"таблица\s+([\w.]*\d)", caption, re.IGNORECASE),
             )
@@ -35,7 +35,7 @@ class TableMentions(Check):
         ]
         mentions = [
             (paragraph.text.strip(), found[0], found[1], number)
-            for paragraph in Body(self.document)
+            for paragraph in Body(self._document)
             if not paragraph.paragraph_format.element.xpath("ancestor::w:tbl")
             and not re.match(
                 r"таблица\s+[\w.]*\d", paragraph.text.strip(), re.IGNORECASE
@@ -61,7 +61,7 @@ class TableMentions(Check):
             *(
                 Violation(
                     f"абзац «{text[:40]}»",
-                    self.rules.rule("ESPD-015-02"),
+                    self._rules.rule("ESPD-015-02"),
                     message,
                 )
                 for text, mention, word, number in mentions
@@ -87,7 +87,7 @@ class TableMentions(Check):
             *(
                 Violation(
                     f"таблица «{caption}»",
-                    self.rules.rule("ESPD-015-02"),
+                    self._rules.rule("ESPD-015-02"),
                     f"в тексте нет ссылки на таблицу {number}",
                 )
                 for caption, number in tables

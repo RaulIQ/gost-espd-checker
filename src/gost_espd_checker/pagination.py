@@ -16,8 +16,8 @@ from gost_espd_checker.violation import Violation
 class Pagination(Check):
     """Clause 2.1.1: no section numbers its pages separately."""
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -25,11 +25,11 @@ class Pagination(Check):
         return tuple(
             Violation(
                 f"раздел {number}",
-                self.rules.rule("ESPD-106-05"),
+                self._rules.rule("ESPD-106-05"),
                 f"нумерация страниц начинается заново от {start}",
             )
             for number, properties in enumerate(
-                self.document.element.body.xpath(
+                self._document.element.body.xpath(
                     "./w:p/w:pPr/w:sectPr | ./w:sectPr"
                 ),
                 start=1,

@@ -11,9 +11,9 @@ from typing_extensions import override
 class Dotted:
     """The parts of a number, joined with dots."""
 
-    number: tuple[int, ...]
+    _number: tuple[int, ...]
 
     @override
     def __str__(self) -> str:
         """Render as ``2.1.4``."""
-        return ".".join(str(part) for part in self.number)
+        return ".".join(str(part) for part in self._number)

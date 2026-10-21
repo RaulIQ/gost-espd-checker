@@ -22,8 +22,8 @@ class TableCaptions(Check):
     GOST 19.106-78, clause 2.6.2, adds that the name is in small letters.
     """
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
@@ -31,10 +31,10 @@ class TableCaptions(Check):
         return tuple(
             Violation(
                 str(Label("таблица", caption, position + 1)),
-                self.rules.rule(key),
+                self._rules.rule(key),
                 text,
             )
-            for position, (_, caption, _) in enumerate(Tables(self.document))
+            for position, (_, caption, _) in enumerate(Tables(self._document))
             for rest in (
                 re.sub(
                     r"^таблица\s+[\w.]*\d", "", caption, flags=re.IGNORECASE

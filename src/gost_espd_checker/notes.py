@@ -24,21 +24,21 @@ class Notes(Check):
     paragraphs right after it that start with a number.
     """
 
-    document: Document
-    rules: Catalog
+    _document: Document
+    _rules: Catalog
 
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Report the sign after the word and the numbers of the notes."""
         texts = [
             paragraph.text.strip()
-            for paragraph in Body(self.document)
+            for paragraph in Body(self._document)
             if paragraph.text.strip()
         ]
         return tuple(
             Violation(
                 f"примечание «{text[:40]}»",
-                self.rules.rule("ESPD-106-24"),
+                self._rules.rule("ESPD-106-24"),
                 message,
             )
             for index, text in enumerate(texts)
