@@ -19,7 +19,7 @@ gost-espd-checker = "gost_espd_checker.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@a963ffe0b4ded8c0edaad468234d5cb7ed5a6261",
+    "pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@0.3.0",
     "PyHamcrest==2.1.0",
     "types-PyYAML==6.0.12.20260906",
 ]
