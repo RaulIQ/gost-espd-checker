@@ -6,6 +6,7 @@ from docx.oxml.ns import nsdecls
 from hamcrest import assert_that, contains_string, empty, has_length
 
 from gost_espd_checker.endorsement import Endorsement
+from tests.boxed import boxed
 from tests.rulebook import rulebook
 
 
@@ -98,6 +99,28 @@ def test_rejects_inscription_without_designation_of_approval_sheet() -> None:
     )
 
 
+def test_rejects_designation_without_suffix_of_approval_sheet() -> None:
+    document = titled(Document(), "УТВЕРЖДЕН", "ВЛТН.868600-01 32 01-лу")
+    assert_that(
+        str(Endorsement(document, rulebook()).violations()[0]),
+        contains_string(
+            "обозначение «ВЛТН.868600-01 32 01-лу» не оканчивается на «-ЛУ»"
+        ),
+        "designation without the suffix of the approval sheet was not rejected",
+    )
+
+
+def test_rejects_inscription_with_nothing_under_it() -> None:
+    document = titled(Document(), "Утвержден")
+    assert_that(
+        str(Endorsement(document, rulebook()).violations()[0]),
+        contains_string(
+            "под надписью «Утвержден» нет обозначения листа утверждения"
+        ),
+        "inscription with nothing under it was not rejected",
+    )
+
+
 def test_skips_approval_sheet_before_title_page() -> None:
     document = titled(Document(), "СОГЛАСОВАНО", "ЛИСТ УТВЕРЖДЕНИЯ")
     document.paragraphs[-1].add_run().add_break(WD_BREAK.PAGE)
@@ -154,4 +177,15 @@ def test_rejects_empty_document() -> None:
         Endorsement(Document(), rulebook()).violations(),
         has_length(1),
         "empty document was not rejected for the missing inscription",
+    )
+
+
+def test_reads_inscription_inside_text_box() -> None:
+    document = Document()
+    boxed(document, "Утвержден", "RU.17701729.00118-01 32 01-ЛУ")
+    document.add_paragraph("РУКОВОДСТВО СИСТЕМНОГО ПРОГРАММИСТА")
+    assert_that(
+        Endorsement(document, rulebook()).violations(),
+        empty(),
+        "inscription inside a text box was not read",
     )
