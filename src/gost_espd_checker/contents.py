@@ -10,6 +10,8 @@ from typing_extensions import override
 from gost_espd_checker.catalog import Catalog
 from gost_espd_checker.check import Check
 from gost_espd_checker.lines import Lines
+from gost_espd_checker.records import Records
+from gost_espd_checker.spot import Spot
 from gost_espd_checker.unnumbered import Unnumbered
 from gost_espd_checker.violation import Violation
 
@@ -26,15 +28,8 @@ class Contents(Check):
     def violations(self) -> tuple[Violation, ...]:
         """Report the title, the page and the entries of the contents."""
         lines = tuple(Lines(self.document))
-        names = [str(Unnumbered(line.text)) for _, line in lines]
-        heading = next(
-            (
-                position
-                for position, name in enumerate(names)
-                if re.fullmatch(r"содержание|оглавление", name, re.IGNORECASE)
-            ),
-            -1,
-        )
+        names = tuple(str(Unnumbered(line.text)) for _, line in lines)
+        heading = int(Spot(names, r"содержание|оглавление"))
         if heading < 0:
             return ()
         page, title = lines[heading]
@@ -56,15 +51,7 @@ class Contents(Check):
                 ),
                 (
                     "содержание стоит перед аннотацией",
-                    next(
-                        (
-                            position
-                            for position, name in enumerate(names)
-                            if re.fullmatch(r"аннотация", name, re.IGNORECASE)
-                        ),
-                        -1,
-                    )
-                    > heading,
+                    int(Spot(names, r"аннотация")) > heading,
                 ),
                 *(
                     (
@@ -77,9 +64,7 @@ class Contents(Check):
                             )
                         ),
                     )
-                    for _, line in lines[heading + 1 :]
-                    if re.search(r"\t\s*\d+\s*$", line.text)
-                    for name in (line.text.split("\t")[0].strip(),)
+                    for name in Records(self.document)
                 ),
             )
             if broken
