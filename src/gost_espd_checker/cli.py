@@ -25,6 +25,11 @@ from gost_espd_checker.pagination import Pagination
 from gost_espd_checker.program import Program
 from gost_espd_checker.rules import Rules
 from gost_espd_checker.sheets import Sheets
+from gost_espd_checker.table_captions import TableCaptions
+from gost_espd_checker.table_heads import TableHeads
+from gost_espd_checker.table_mentions import TableMentions
+from gost_espd_checker.table_numbering import TableNumbering
+from gost_espd_checker.table_ordinals import TableOrdinals
 from gost_espd_checker.titles import Titles
 
 
@@ -55,6 +60,11 @@ class Cli(Program):
             *FigureMentions(document, self.rules).violations(),
             *FigureCaptions(document, self.rules).violations(),
             *Notes(document, self.rules).violations(),
+            *TableCaptions(document, self.rules).violations(),
+            *TableNumbering(document, self.rules).violations(),
+            *TableMentions(document, self.rules).violations(),
+            *TableHeads(document, self.rules).violations(),
+            *TableOrdinals(document, self.rules).violations(),
         )
         self.out.writelines(f"{violation}\n" for violation in found)
         return 1 if found else 0
